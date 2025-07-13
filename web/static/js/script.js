@@ -384,6 +384,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterLevel = logLevelFilterSelect.value;
 
         const filteredLogs = allLogEntries.filter(entry => {
+            // Filter out 'werkzeug' logs
+            if (entry.name.toLowerCase() === 'werkzeug') {
+                return false;
+            }
+
             const matchesText = entry.message.toLowerCase().includes(filterText) ||
                                 entry.timestamp.toLowerCase().includes(filterText) ||
                                 entry.level.toLowerCase().includes(filterText) ||
