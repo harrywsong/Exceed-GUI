@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         commandStats.forEach(stat => {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<span>!${stat.command_name}:</span> <span>${stat.usage_count} uses</span>`;
+            listItem.innerHTML = `<span>${stat.command_name}:</span> <span>${stat.usage_count} uses</span>`;
             topCommandsList.appendChild(listItem);
         });
     }
