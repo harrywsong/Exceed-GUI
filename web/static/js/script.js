@@ -351,19 +351,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok && data.status === 'success') {
                 allLogEntries = data.logs.map(logLine => {
-                    // Attempt to parse log line into structured object
-                    // Example log format: "[{asctime}] [{levelname:.<8}] [{name}] {message}"
-                    // This regex is now more flexible to handle potential variations and ensure 'name' is captured.
-                    const match = logLine.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(.*?)\s*\] \[(.*?)(?:\])? (.*)$/);
+                    // Updated Regex:
+                    // - `^.*?`: Matches any characters at the beginning (non-greedy) until the first timestamp.
+                    // - `\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]`: Captures timestamp (Group 1).
+                    // - `\s*\[(.*?)\]`: Captures log level (Group 2), allowing for spaces.
+                    // - `\s*\[(.*?)\]`: Captures logger name (Group 3), allowing for spaces.
+                    // - `\s*(.*)$`: Captures the rest of the message (Group 4).
+                    const match = logLine.match(/^.*?\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s*\[(.*?)\]\s*\[(.*?)\]\s*(.*)$/);
+
                     if (match) {
                         return {
                             timestamp: match[1],
                             level: match[2].trim().toUpperCase(),
-                            name: match[3] ? match[3].trim() : 'UNKNOWN', // Ensure name is not undefined
+                            name: match[3].trim(),
                             message: match[4].trim()
                         };
                     }
-                    // Fallback for unparsed lines
+                    // Fallback for lines that don't match the structured regex.
+                    // If it contains "[werkzeug]" but didn't match the structured regex,
+                    // we can still assign 'werkzeug' as the name for filtering.
+                    if (logLine.toLowerCase().includes('[werkzeug]')) {
+                        // Attempt to extract timestamp and level even for unparsed werkzeug lines if possible
+                        const werkzeugMatch = logLine.match(/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(.*?)\s*\] \[werkzeug\] (.*)/i);
+                        if (werkzeugMatch) {
+                            return {
+                                timestamp: werkzeugMatch[1],
+                                level: werkzeugMatch[2].trim().toUpperCase(),
+                                name: 'werkzeug',
+                                message: werkzeugMatch[3].trim()
+                            };
+                        }
+                        return { timestamp: 'N/A', level: 'INFO', name: 'werkzeug', message: logLine.trim() };
+                    }
                     return { timestamp: 'N/A', level: 'UNKNOWN', name: 'UNKNOWN', message: logLine.trim() };
                 });
                 renderLogs();
@@ -387,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterLevel = logLevelFilterSelect.value;
 
         const filteredLogs = allLogEntries.filter(entry => {
-            // Filter out 'werkzeug' logs
+            // Filter out 'werkzeug' logs by name
             if (entry.name.toLowerCase() === 'werkzeug') {
                 return false;
             }
