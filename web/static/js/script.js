@@ -345,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchLogs() {
         try {
             const response = await fetch(`${API_BASE_URL}/logs`);
+            console.log(`Fetching logs from: ${API_BASE_URL}/logs`); // Debugging line
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
