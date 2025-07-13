@@ -21,6 +21,9 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S')
 ui_logger = logging.getLogger(__name__)
 
+# Add this line to suppress werkzeug INFO level messages in the Flask UI's console
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
 
 # Get the URL for the existing bot's API from environment variables
 EXISTING_BOT_API_URL = os.getenv("EXISTING_BOT_API_URL", "http://127.0.0.1:5001")
