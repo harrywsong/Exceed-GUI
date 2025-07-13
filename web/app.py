@@ -3,15 +3,30 @@ import os
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import requests # For making HTTP requests to the external bot API
+import logging # Import logging module
+from threading import Thread # Keep Thread import if you need it for other future tasks, but not for bot_api_thread here
 
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder='web/static',
+            template_folder='web/templates')
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'a_fallback_secret_key_if_not_set')
+
+# Configure logging for the Flask UI app
+# This will ensure Flask's internal logs (like Werkzeug) also go to a file
+# and are not mixed directly with the bot's logs in the console unless desired.
+# For simplicity, we'll just use basic console logging here.
+logging.basicConfig(level=logging.INFO,
+                    format='[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+ui_logger = logging.getLogger(__name__)
+
 
 # Get the URL for the existing bot's API from environment variables
 EXISTING_BOT_API_URL = os.getenv("EXISTING_BOT_API_URL", "http://127.0.0.1:5001")
+ui_logger.info(f"UI configured to connect to bot API at: {EXISTING_BOT_API_URL}")
 
 # --- API Endpoints for the UI ---
 
@@ -21,7 +36,6 @@ def index():
     return render_template('index.html')
 
 @app.route('/api/bot_info')
-# Changed from async def to def, as requests.get is synchronous
 def get_bot_info():
     """
     Fetches live bot information from the external bot's API.
@@ -35,7 +49,6 @@ def get_bot_info():
         - "commands_used_today": int
     """
     try:
-        # Removed 'await' as requests.get is synchronous
         response = requests.get(f"{EXISTING_BOT_API_URL}/status", timeout=5)
         response.raise_for_status() # Raise an exception for HTTP errors (4xx or 5xx)
         bot_data = response.json()
@@ -52,8 +65,7 @@ def get_bot_info():
         return jsonify(bot_status)
 
     except requests.exceptions.ConnectionError:
-        # Bot API is not reachable (e.g., bot is offline or API port is wrong)
-        print(f"ConnectionError: Bot API not reachable at {EXISTING_BOT_API_URL}. Is your bot running and its API exposed?")
+        ui_logger.warning(f"ConnectionError: Bot API not reachable at {EXISTING_BOT_API_URL}. Is your bot running and its API exposed?")
         return jsonify({
             "status": "Offline",
             "uptime": "N/A",
@@ -65,8 +77,7 @@ def get_bot_info():
         }), 200 # Return 200 OK, but indicate offline status in JSON
 
     except requests.exceptions.Timeout:
-        # Request to bot API timed out
-        print(f"Timeout: Bot API request timed out for {EXISTING_BOT_API_URL}/status.")
+        ui_logger.warning(f"Timeout: Bot API request timed out for {EXISTING_BOT_API_URL}/status.")
         return jsonify({
             "status": "Offline",
             "uptime": "N/A",
@@ -78,8 +89,7 @@ def get_bot_info():
         }), 200
 
     except requests.exceptions.RequestException as e:
-        # Other request errors (e.g., HTTP 404, 500 from bot API, bad JSON)
-        print(f"Error fetching bot info from external API: {e}")
+        ui_logger.error(f"Error fetching bot info from external API: {e}")
         return jsonify({
             "status": "Offline",
             "uptime": "N/A",
@@ -90,7 +100,7 @@ def get_bot_info():
             "error": f"Error from bot API: {e}. Check bot logs."
         }), 200
     except Exception as e:
-        print(f"An unexpected error occurred in get_bot_info: {e}")
+        ui_logger.critical(f"An unexpected error occurred in get_bot_info: {e}", exc_info=True)
         return jsonify({
             "status": "Offline",
             "uptime": "N/A",
@@ -99,11 +109,10 @@ def get_bot_info():
             "user_count": 0,
             "commands_used_today": 0,
             "error": f"An unexpected error occurred: {e}"
-        }), 500 # Return 500 for unexpected internal errors
+        }), 500
 
 
 @app.route('/api/send_announcement', methods=['POST'])
-# Changed from async def to def
 def send_announcement():
     """
     Sends an announcement request to the external bot's API.
@@ -118,7 +127,6 @@ def send_announcement():
         return jsonify({"success": False, "error": "Message and channel ID are required."}), 400
 
     try:
-        # Removed 'await' as requests.post is synchronous
         response = requests.post(
             f"{EXISTING_BOT_API_URL}/command/announce",
             json={'channel_id': channel_id, 'message': message},
@@ -133,15 +141,14 @@ def send_announcement():
             return jsonify({"success": False, "error": bot_response.get("error", "Bot command failed.")}), 500
 
     except requests.exceptions.RequestException as e:
-        print(f"Error sending announcement to external bot API: {e}")
+        ui_logger.error(f"Error sending announcement to external bot API: {e}", exc_info=True)
         return jsonify({"success": False, "error": f"Failed to communicate with bot API: {e}"}), 500
     except Exception as e:
-        print(f"An unexpected error occurred in send_announcement: {e}")
+        ui_logger.critical(f"An unexpected error occurred in send_announcement: {e}", exc_info=True)
         return jsonify({"success": False, "error": f"An unexpected error occurred: {e}"}), 500
 
 
 @app.route('/api/control_bot', methods=['POST'])
-# Changed from async def to def
 def control_bot():
     """
     Sends bot control actions (restart, reload cogs, update git) to the external bot's API.
@@ -155,7 +162,6 @@ def control_bot():
         return jsonify({"success": False, "error": "Invalid action."}), 400
 
     try:
-        # Removed 'await' as requests.post is synchronous
         response = requests.post(
             f"{EXISTING_BOT_API_URL}/control/{action}",
             json={}, # Send empty JSON body
@@ -170,20 +176,58 @@ def control_bot():
             return jsonify({"success": False, "error": bot_response.get("error", f"Bot {action} failed.")}), 500
 
     except requests.exceptions.RequestException as e:
-        print(f"Error sending control action to external bot API: {e}")
+        ui_logger.error(f"Error sending control action to external bot API: {e}", exc_info=True)
         return jsonify({"success": False, "error": f"Failed to communicate with bot API: {e}"}), 500
     except Exception as e:
-        print(f"An unexpected error occurred in control_bot: {e}")
+        ui_logger.critical(f"An unexpected error occurred in control_bot: {e}", exc_info=True)
         return jsonify({"success": False, "error": f"An unexpected error occurred: {e}"}), 500
+
+@app.route('/api/logs', methods=['GET'])
+def get_logs_proxy():
+    """
+    Proxies the request to the bot's /logs endpoint to fetch log data.
+    """
+    try:
+        response = requests.get(f"{EXISTING_BOT_API_URL}/logs", timeout=15)
+        response.raise_for_status()
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        ui_logger.error(f"Error proxying logs request to bot API: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"Failed to fetch logs from bot API: {e}"}), 500
+    except Exception as e:
+        ui_logger.critical(f"An unexpected error occurred in get_logs_proxy: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
+
+
+@app.route('/api/command_stats', methods=['GET'])
+def get_command_stats_proxy():
+    """
+    Proxies the request to the bot's /command_stats endpoint to fetch command usage data.
+    """
+    try:
+        response = requests.get(f"{EXISTING_BOT_API_URL}/command_stats", timeout=15)
+        response.raise_for_status()
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        ui_logger.error(f"Error proxying command stats request to bot API: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"Failed to fetch command stats from bot API: {e}"}), 500
+    except Exception as e:
+        ui_logger.critical(f"An unexpected error occurred in get_command_stats_proxy: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
 
 
 def run_flask_app():
     """
     Starts the Flask web server for the UI.
     """
-    app.run(debug=True, port=5000)
+    app.run(host='127.0.0.1', port=5000, debug=True)
 
 if __name__ == '__main__':
-    print(f"Starting Flask UI app on http://127.0.0.1:5000/")
-    print(f"This UI will attempt to connect to your existing bot's API at: {EXISTING_BOT_API_URL}")
+    # The bot's API server is assumed to be started by bot.py itself.
+    # We no longer attempt to start it from app.py.
+    # You must run bot.py and app.py in separate processes/terminals.
+
+    ui_logger.info(f"Starting Flask UI app on http://127.0.0.1:5000/")
+    ui_logger.info(f"Ensure your bot's API is running separately on {EXISTING_BOT_API_URL}")
     run_flask_app()
+

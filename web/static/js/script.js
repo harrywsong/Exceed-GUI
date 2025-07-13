@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
-    // Ensure your Flask API is running on this URL and port (e.g., in bot.py)
-    const API_BASE_URL = 'http://127.0.0.1:5001';
+    // This now points to the Flask UI app's API, which proxies requests to the bot's API.
+    const API_BASE_URL = 'http://127.0.0.1:5000/api'; // Changed to UI's API base URL
 
     // --- Dashboard Elements ---
     const statusIndicator = document.getElementById('status');
@@ -61,10 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchBotStatus() {
         try {
-            const response = await fetch(`${API_BASE_URL}/status`);
+            const response = await fetch(`${API_BASE_URL}/bot_info`); // Changed endpoint
             const data = await response.json();
 
-            if (response.ok) {
+            if (response.ok) { // Check response.ok for HTTP status 200-299
                 statusIndicator.textContent = data.status;
                 statusIndicator.className = `status-indicator ${data.status.toLowerCase()}`;
                 uptimeElement.textContent = data.uptime;
@@ -98,11 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Bot Control Panel Functions ---
     /**
      * Sends a control action request to the backend API.
-     * @param {string} endpoint - The API endpoint for the action (e.g., '/control/restart').
+     * @param {string} action - The specific action (e.g., 'restart', 'reload_cogs', 'update_git').
      * @param {string} actionName - A user-friendly name for the action (e.g., "Restart Bot").
      * @param {HTMLElement} messageElement - The element to display status messages.
      */
-    async function sendControlAction(endpoint, actionName, messageElement) {
+    async function sendControlAction(action, actionName, messageElement) { // Changed parameter from endpoint to action
         showMessage(messageElement, `Attempting to ${actionName.toLowerCase()}...`, 'info');
         // Disable buttons during action
         restartBotBtn.disabled = true;
@@ -111,15 +111,16 @@ document.addEventListener('DOMContentLoaded', () => {
         sendAnnouncementBtn.disabled = true;
 
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            const response = await fetch(`${API_BASE_URL}/control_bot`, { // Changed endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({ action: action }) // Pass action in body
             });
             const data = await response.json();
 
-            if (response.ok && data.status === 'success') {
+            if (response.ok && data.success) { // Check data.success
                 showMessage(messageElement, `${actionName} successful! ${data.message || ''}`, 'success');
                 // Immediately refresh dashboard stats after a successful control action
                 fetchBotStatus();
@@ -145,9 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Sets up event listeners for bot control buttons.
      */
     function setupControlPanelListeners() {
-        restartBotBtn.addEventListener('click', () => sendControlAction('/control/restart', 'Restart Bot', controlStatusMessage));
-        reloadCogsBtn.addEventListener('click', () => sendControlAction('/control/reload_cogs', 'Reload Cogs', controlStatusMessage));
-        updateGitBtn.addEventListener('click', () => sendControlAction('/control/update_git', 'Update from Git', controlStatusMessage));
+        restartBotBtn.addEventListener('click', () => sendControlAction('restart', 'Restart Bot', controlStatusMessage));
+        reloadCogsBtn.addEventListener('click', () => sendControlAction('reload_cogs', 'Reload Cogs', controlStatusMessage));
+        updateGitBtn.addEventListener('click', () => sendControlAction('update_git', 'Update from Git', controlStatusMessage));
     }
 
     // --- Send Announcement Functions ---
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sendAnnouncementBtn.disabled = true; // Disable button during sending
 
         try {
-            const response = await fetch(`${API_BASE_URL}/command/announce`, {
+            const response = await fetch(`${API_BASE_URL}/send_announcement`, { // Changed endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -180,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
 
-            if (response.ok && data.status === 'success') {
+            if (response.ok && data.success) { // Check data.success
                 showMessage(announcementStatusMessage, `Announcement sent! ${data.message || ''}`, 'success');
                 announcementMessageInput.value = ''; // Clear message
                 fetchLogs(); // Fetch logs again in case the announcement was logged
@@ -209,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchCommandUsageStats() {
         try {
-            const response = await fetch(`${API_BASE_URL}/command_stats`);
+            const response = await fetch(`${API_BASE_URL}/command_stats`); // Changed endpoint
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
@@ -344,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchLogs() {
         try {
-            const response = await fetch(`${API_BASE_URL}/logs`);
+            const response = await fetch(`${API_BASE_URL}/logs`); // Changed endpoint
             console.log(`Fetching logs from: ${API_BASE_URL}/logs`); // Debugging line
             const data = await response.json();
 
@@ -362,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                     }
                     // Fallback for unparsed lines
-                    return { timestamp: 'N/A', level: 'UNKNOWN', message: logLine.trim() };
+                    return { timestamp: 'N/A', level: 'UNKNOWN', name: 'UNKNOWN', message: logLine.trim() };
                 });
                 renderLogs();
             } else {
