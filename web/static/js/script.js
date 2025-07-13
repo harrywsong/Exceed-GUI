@@ -37,6 +37,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allLogEntries = []; // Will store fetched log entries
 
+    // --- Configuration Editor Elements ---
+    const configDisplay = document.getElementById('config-display');
+    const configStatusMessage = document.getElementById('config-status-message');
+
+    // --- Reaction Roles Editor Elements ---
+    const rrMessageIdInput = document.getElementById('rr-message-id');
+    const rrChannelIdInput = document.getElementById('rr-channel-id');
+    const rrEmojiInput = document.getElementById('rr-emoji');
+    const rrRoleIdInput = document.getElementById('rr-role-id');
+    const addReactionRoleBtn = document.getElementById('add-reaction-role-btn');
+    const addRrStatusMessage = document.getElementById('add-rr-status-message');
+    const reactionRolesTableBody = document.querySelector('#reaction-roles-table tbody');
+    const listRrStatusMessage = document.getElementById('list-rr-status-message');
+
 
     /**
      * Displays a message in a specified element with a given type (success, error, info).
@@ -61,22 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchBotStatus() {
         try {
-            const response = await fetch(`${API_BASE_URL}/bot_info`); // Changed endpoint
+            const response = await fetch(`${API_BASE_URL}/bot_info`);
             const data = await response.json();
 
-            if (response.ok) { // Check response.ok for HTTP status 200-299
+            if (response.ok) {
                 statusIndicator.textContent = data.status;
                 statusIndicator.className = `status-indicator ${data.status.toLowerCase()}`;
                 uptimeElement.textContent = data.uptime;
                 latencyElement.textContent = `${data.latency_ms} ms`;
-                // commandsTodayElement.textContent is now updated by fetchCommandUsageStats
                 activeUsersElement.textContent = data.user_count;
                 serverCountElement.textContent = data.guild_count;
             } else {
-                console.error('Failed to fetch bot status:', data.error);
-                statusIndicator.textContent = 'Error';
+                console.error('봇 상태를 가져오는 데 실패했습니다:', data.error);
+                statusIndicator.textContent = '오류';
                 statusIndicator.className = 'status-indicator error';
-                // Clear other fields or set to error state
                 uptimeElement.textContent = 'N/A';
                 latencyElement.textContent = 'N/A';
                 commandsTodayElement.textContent = 'N/A';
@@ -84,8 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 serverCountElement.textContent = 'N/A';
             }
         } catch (error) {
-            console.error('Network error fetching bot status:', error);
-            statusIndicator.textContent = 'Offline (API Error)';
+            console.error('봇 상태를 가져오는 중 네트워크 오류:', error);
+            statusIndicator.textContent = '오프라인 (API 오류)';
             statusIndicator.className = 'status-indicator offline';
             uptimeElement.textContent = 'N/A';
             latencyElement.textContent = 'N/A';
@@ -102,43 +114,46 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} actionName - A user-friendly name for the action (e.g., "Restart Bot").
      * @param {HTMLElement} messageElement - The element to display status messages.
      */
-    async function sendControlAction(action, actionName, messageElement) { // Changed parameter from endpoint to action
-        showMessage(messageElement, `Attempting to ${actionName.toLowerCase()}...`, 'info');
+    async function sendControlAction(action, actionName, messageElement) {
+        showMessage(messageElement, `${actionName.toLowerCase()} 시도 중...`, 'info');
         // Disable buttons during action
         restartBotBtn.disabled = true;
         reloadCogsBtn.disabled = true;
         updateGitBtn.disabled = true;
         sendAnnouncementBtn.disabled = true;
+        addReactionRoleBtn.disabled = true; // Disable RR buttons too
 
         try {
-            const response = await fetch(`${API_BASE_URL}/control_bot`, { // Changed endpoint
+            const response = await fetch(`${API_BASE_URL}/control_bot`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ action: action }) // Pass action in body
+                body: JSON.stringify({ action: action })
             });
             const data = await response.json();
 
-            if (response.ok && data.success) { // Check data.success
-                showMessage(messageElement, `${actionName} successful! ${data.message || ''}`, 'success');
+            if (response.ok && data.success) {
+                showMessage(messageElement, `${actionName} 성공! ${data.message || ''}`, 'success');
                 // Immediately refresh dashboard stats after a successful control action
                 fetchBotStatus();
-                fetchCommandUsageStats(); // Also refresh command stats
-                fetchLogs(); // And logs, in case actions generate new log entries
+                fetchCommandUsageStats();
+                fetchLogs();
+                fetchReactionRoles(); // Also refresh reaction roles
             } else {
-                showMessage(messageElement, `${actionName} failed: ${data.error || 'Unknown error'}`, 'error');
-                console.error(`${actionName} API error:`, data.error);
+                showMessage(messageElement, `${actionName} 실패: ${data.error || '알 수 없는 오류'}`, 'error');
+                console.error(`${actionName} API 오류:`, data.error);
             }
         } catch (error) {
-            showMessage(messageElement, `Network error during ${actionName.toLowerCase()}: ${error.message}`, 'error');
-            console.error(`Network error for ${actionName}:`, error);
+            showMessage(messageElement, `${actionName.toLowerCase()} 중 네트워크 오류: ${error.message}`, 'error');
+            console.error(`${actionName} 중 네트워크 오류:`, error);
         } finally {
             // Re-enable buttons
             restartBotBtn.disabled = false;
             reloadCogsBtn.disabled = false;
             updateGitBtn.disabled = false;
             sendAnnouncementBtn.disabled = false;
+            addReactionRoleBtn.disabled = false;
         }
     }
 
@@ -146,9 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Sets up event listeners for bot control buttons.
      */
     function setupControlPanelListeners() {
-        restartBotBtn.addEventListener('click', () => sendControlAction('restart', 'Restart Bot', controlStatusMessage));
-        reloadCogsBtn.addEventListener('click', () => sendControlAction('reload_cogs', 'Reload Cogs', controlStatusMessage));
-        updateGitBtn.addEventListener('click', () => sendControlAction('update_git', 'Update from Git', controlStatusMessage));
+        restartBotBtn.addEventListener('click', () => sendControlAction('restart', '봇 재시작', controlStatusMessage));
+        reloadCogsBtn.addEventListener('click', () => sendControlAction('reload_cogs', 'Cog 재로드', controlStatusMessage));
+        updateGitBtn.addEventListener('click', () => sendControlAction('update_git', 'Git에서 업데이트', controlStatusMessage));
     }
 
     // --- Send Announcement Functions ---
@@ -160,19 +175,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const channelId = announcementChannelInput.value.trim();
 
         if (!message) {
-            showMessage(announcementStatusMessage, 'Please enter an announcement message.', 'error');
+            showMessage(announcementStatusMessage, '공지 메시지를 입력해주세요.', 'error');
             return;
         }
-        if (!channelId || !/^\d{17,19}$/.test(channelId)) { // Basic Discord channel ID validation (17-19 digits)
-            showMessage(announcementStatusMessage, 'Please enter a valid Discord channel ID (17-19 digits).', 'error');
+        if (!channelId || !/^\d{17,19}$/.test(channelId)) {
+            showMessage(announcementStatusMessage, '유효한 디스코드 채널 ID (17-19자리 숫자)를 입력해주세요.', 'error');
             return;
         }
 
-        showMessage(announcementStatusMessage, 'Sending announcement...', 'info');
-        sendAnnouncementBtn.disabled = true; // Disable button during sending
+        showMessage(announcementStatusMessage, '공지 전송 중...', 'info');
+        sendAnnouncementBtn.disabled = true;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/send_announcement`, { // Changed endpoint
+            const response = await fetch(`${API_BASE_URL}/send_announcement`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -181,19 +196,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
 
-            if (response.ok && data.success) { // Check data.success
-                showMessage(announcementStatusMessage, `Announcement sent! ${data.message || ''}`, 'success');
-                announcementMessageInput.value = ''; // Clear message
-                fetchLogs(); // Fetch logs again in case the announcement was logged
+            if (response.ok && data.success) {
+                showMessage(announcementStatusMessage, `공지 전송 성공! ${data.message || ''}`, 'success');
+                announcementMessageInput.value = '';
+                fetchLogs();
             } else {
-                showMessage(announcementStatusMessage, `Failed to send announcement: ${data.error || 'Unknown error'}`, 'error');
-                console.error('Announcement API error:', data.error);
+                showMessage(announcementStatusMessage, `공지 전송 실패: ${data.error || '알 수 없는 오류'}`, 'error');
+                console.error('공지 API 오류:', data.error);
             }
         } catch (error) {
-            showMessage(announcementStatusMessage, `Network error sending announcement: ${error.message}`, 'error');
-            console.error('Network error for announcement:', error);
+            showMessage(announcementStatusMessage, `공지 전송 중 네트워크 오류: ${error.message}`, 'error');
+            console.error('공지 전송 중 네트워크 오류:', error);
         } finally {
-            sendAnnouncementBtn.disabled = false; // Re-enable button
+            sendAnnouncementBtn.disabled = false;
         }
     }
 
@@ -210,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchCommandUsageStats() {
         try {
-            const response = await fetch(`${API_BASE_URL}/command_stats`); // Changed endpoint
+            const response = await fetch(`${API_BASE_URL}/command_stats`);
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
@@ -219,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dataValues = commandStats.map(stat => stat.usage_count);
 
                 // Update the "Commands Used Today" in the dashboard overview
-                const totalCommands = dataValues.reduce((sum, count) => sum + count, 0);
+                const totalCommands = data.total_commands_today || 0; // Use total_commands_today from bot API
                 commandsTodayElement.textContent = totalCommands;
 
                 if (commandUsageChart) {
@@ -231,25 +246,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 updateTopCommandsList(commandStats);
             } else {
-                console.error('Failed to fetch command stats:', data.error);
-                commandsTodayElement.textContent = 'Error';
-                // Clear chart and list or show error
+                console.error('명령어 통계를 가져오는 데 실패했습니다:', data.error);
+                commandsTodayElement.textContent = '오류';
                 if (commandUsageChart) {
                     commandUsageChart.data.labels = [];
                     commandUsageChart.data.datasets[0].data = [];
                     commandUsageChart.update();
                 }
-                topCommandsList.innerHTML = '<li>Error fetching command stats.</li>';
+                topCommandsList.innerHTML = '<li>명령어 통계를 가져오는 중 오류가 발생했습니다.</li>';
             }
         } catch (error) {
-            console.error('Network error fetching command stats:', error);
+            console.error('명령어 통계를 가져오는 중 네트워크 오류:', error);
             commandsTodayElement.textContent = 'N/A';
             if (commandUsageChart) {
                 commandUsageChart.data.labels = [];
                 commandUsageChart.data.datasets[0].data = [];
                 commandUsageChart.update();
             }
-            topCommandsList.innerHTML = '<li>Network error fetching command stats.</li>';
+            topCommandsList.innerHTML = '<li>명령어 통계를 가져오는 중 네트워크 오류가 발생했습니다.</li>';
         }
     }
 
@@ -264,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Commands Used',
+                    label: '사용된 명령어',
                     data: dataValues,
                     backgroundColor: [
                         'rgba(88, 101, 242, 0.8)', // Discord blue
@@ -334,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         commandStats.forEach(stat => {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<span>${stat.command_name}:</span> <span>${stat.usage_count} uses</span>`;
+            listItem.innerHTML = `<span>/${stat.command_name}:</span> <span>${stat.usage_count}회 사용</span>`;
             topCommandsList.appendChild(listItem);
         });
     }
@@ -345,21 +359,18 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function fetchLogs() {
         try {
-            const response = await fetch(`${API_BASE_URL}/logs`); // Changed endpoint
-            console.log(`Fetching logs from: ${API_BASE_URL}/logs`); // Debugging line
+            const response = await fetch(`${API_BASE_URL}/logs`);
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
                 allLogEntries = data.logs.map(logLine => {
                     // First, check if the raw log line contains "werkzeug"
                     if (logLine.toLowerCase().includes('werkzeug')) {
-                        // If it's a werkzeug log, we'll explicitly mark it as such
-                        // and try to parse its timestamp and level if possible.
                         const simpleMatch = logLine.match(/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(.*?)\s*\]/);
                         return {
                             timestamp: simpleMatch ? simpleMatch[1] : 'N/A',
                             level: simpleMatch ? simpleMatch[2].trim().toUpperCase() : 'INFO',
-                            name: 'werkzeug', // Explicitly set name for filtering
+                            name: 'werkzeug',
                             message: logLine.trim()
                         };
                     }
@@ -381,12 +392,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 renderLogs();
             } else {
-                console.error('Failed to fetch logs:', data.error);
-                logOutput.innerHTML = '<p class="log-entry error">Error fetching logs.</p>';
+                console.error('로그를 가져오는 데 실패했습니다:', data.error);
+                logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 오류가 발생했습니다.</p>';
             }
         } catch (error) {
-            console.error('Network error fetching logs:', error);
-            logOutput.innerHTML = '<p class="log-entry error">Network error fetching logs.</p>';
+            console.error('로그를 가져오는 중 네트워크 오류:', error);
+            logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 네트워크 오류가 발생했습니다.</p>';
         }
     }
 
@@ -408,14 +419,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchesText = entry.message.toLowerCase().includes(filterText) ||
                                 entry.timestamp.toLowerCase().includes(filterText) ||
                                 entry.level.toLowerCase().includes(filterText) ||
-                                entry.name.toLowerCase().includes(filterText); // Include logger name in filter
-            const matchesLevel = filterLevel === 'all' || entry.level.toLowerCase() === filterLevel;
+                                entry.name.toLowerCase().includes(filterText);
+            const matchesLevel = filterLevel === 'all' || entry.level.toLowerCase() === filterLevel.toLowerCase();
             return matchesText && matchesLevel;
         });
 
         filteredLogs.forEach(entry => {
             const p = document.createElement('p');
-            // Add a class for the log level for styling
             p.className = `log-entry ${entry.level.toLowerCase()}`;
             p.textContent = `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`;
             logOutput.appendChild(p);
@@ -433,10 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
         logLevelFilterSelect.addEventListener('change', renderLogs);
 
         clearLogsBtn.addEventListener('click', () => {
-            logOutput.innerHTML = ''; // Clear display
-            // Note: This only clears the view, not the `allLogEntries` array
-            // If you want to clear all data, you'd need a backend endpoint to truncate the log file.
-            showMessage(controlStatusMessage, 'Log view cleared.', 'info');
+            logOutput.innerHTML = '';
+            showMessage(controlStatusMessage, '로그 뷰가 지워졌습니다.', 'info');
         });
 
         downloadLogsBtn.addEventListener('click', () => {
@@ -449,9 +457,180 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url); // Clean up
-            showMessage(controlStatusMessage, 'Logs downloaded successfully.', 'success');
+            URL.revokeObjectURL(url);
+            showMessage(controlStatusMessage, '로그가 성공적으로 다운로드되었습니다.', 'success');
         });
+    }
+
+    // --- Configuration Editor Functions ---
+    async function fetchConfig() {
+        configDisplay.innerHTML = '<p>설정 로딩 중...</p>';
+        try {
+            const response = await fetch(`${API_BASE_URL}/config_proxy`);
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                let html = '<h3>현재 봇 설정:</h3>';
+                html += '<ul>';
+                for (const key in data.config) {
+                    if (Object.hasOwnProperty.call(data.config, key)) {
+                        let value = data.config[key];
+                        // Format array values nicely
+                        if (Array.isArray(value)) {
+                            value = `[${value.join(', ')}]`;
+                        }
+                        html += `<li><strong>${key}:</strong> ${value}</li>`;
+                    }
+                }
+                html += '</ul>';
+                configDisplay.innerHTML = html;
+                showMessage(configStatusMessage, '봇 설정을 성공적으로 가져왔습니다.', 'success');
+            } else {
+                configDisplay.innerHTML = '<p class="error">설정을 가져오는 데 실패했습니다.</p>';
+                showMessage(configStatusMessage, `설정을 가져오는 데 실패했습니다: ${data.error || '알 수 없는 오류'}`, 'error');
+                console.error('설정 API 오류:', data.error);
+            }
+        } catch (error) {
+            configDisplay.innerHTML = '<p class="error">설정을 가져오는 중 네트워크 오류.</p>';
+            showMessage(configStatusMessage, `설정을 가져오는 중 네트워크 오류: ${error.message}`, 'error');
+            console.error('설정 가져오기 중 네트워크 오류:', error);
+        }
+    }
+
+
+    // --- Reaction Roles Editor Functions ---
+
+    async function fetchReactionRoles() {
+        reactionRolesTableBody.innerHTML = '<tr><td colspan="5">리액션 역할 로딩 중...</td></tr>';
+        try {
+            const response = await fetch(`${API_BASE_URL}/reaction_roles_proxy`);
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                renderReactionRolesTable(data.reaction_roles);
+                showMessage(listRrStatusMessage, '리액션 역할을 성공적으로 가져왔습니다.', 'success');
+            } else {
+                reactionRolesTableBody.innerHTML = '<tr><td colspan="5" class="error">리액션 역할을 가져오는 데 실패했습니다.</td></tr>';
+                showMessage(listRrStatusMessage, `리액션 역할을 가져오는 데 실패했습니다: ${data.error || '알 수 없는 오류'}`, 'error');
+                console.error('리액션 역할 API 오류:', data.error);
+            }
+        } catch (error) {
+            reactionRolesTableBody.innerHTML = '<tr><td colspan="5" class="error">리액션 역할을 가져오는 중 네트워크 오류.</td></tr>';
+            showMessage(listRrStatusMessage, `리액션 역할을 가져오는 중 네트워크 오류: ${error.message}`, 'error');
+            console.error('리액션 역할 가져오기 중 네트워크 오류:', error);
+        }
+    }
+
+    function renderReactionRolesTable(reactionRoles) {
+        reactionRolesTableBody.innerHTML = ''; // Clear existing rows
+        if (reactionRoles.length === 0) {
+            reactionRolesTableBody.innerHTML = '<tr><td colspan="5">등록된 리액션 역할이 없습니다.</td></tr>';
+            return;
+        }
+
+        reactionRoles.forEach(rr => {
+            const row = reactionRolesTableBody.insertRow();
+            row.insertCell(0).textContent = rr.message_id;
+            row.insertCell(1).textContent = rr.channel_id;
+            row.insertCell(2).textContent = rr.emoji;
+            row.insertCell(3).textContent = rr.role_id;
+
+            const actionCell = row.insertCell(4);
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-btn';
+            deleteButton.innerHTML = '<i class="fas fa-trash"></i> 제거';
+            deleteButton.onclick = () => removeReactionRole(rr.message_id, rr.emoji);
+            actionCell.appendChild(deleteButton);
+        });
+    }
+
+    async function addReactionRole() {
+        const message_id = rrMessageIdInput.value.trim();
+        const channel_id = rrChannelIdInput.value.trim();
+        const emoji = rrEmojiInput.value.trim();
+        const role_id = rrRoleIdInput.value.trim();
+
+        if (!message_id || !channel_id || !emoji || !role_id) {
+            showMessage(addRrStatusMessage, '모든 필드를 채워주세요.', 'error');
+            return;
+        }
+
+        if (isNaN(message_id) || isNaN(channel_id) || isNaN(role_id)) {
+            showMessage(addRrStatusMessage, '메시지 ID, 채널 ID, 역할 ID는 숫자여야 합니다.', 'error');
+            return;
+        }
+
+        showMessage(addRrStatusMessage, '리액션 역할 추가 중...', 'info');
+        addReactionRoleBtn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/reaction_roles_proxy/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message_id: parseInt(message_id),
+                    channel_id: parseInt(channel_id),
+                    emoji: emoji,
+                    role_id: parseInt(role_id)
+                })
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                showMessage(addRrStatusMessage, `리액션 역할 추가 성공! ${data.message || ''}`, 'success');
+                rrMessageIdInput.value = '';
+                rrChannelIdInput.value = '';
+                rrEmojiInput.value = '';
+                rrRoleIdInput.value = '';
+                fetchReactionRoles(); // Refresh the list
+            } else {
+                showMessage(addRrStatusMessage, `리액션 역할 추가 실패: ${data.error || '알 수 없는 오류'}`, 'error');
+                console.error('리액션 역할 추가 API 오류:', data.error);
+            }
+        } catch (error) {
+            showMessage(addRrStatusMessage, `리액션 역할 추가 중 네트워크 오류: ${error.message}`, 'error');
+            console.error('리액션 역할 추가 중 네트워크 오류:', error);
+        } finally {
+            addReactionRoleBtn.disabled = false;
+        }
+    }
+
+    async function removeReactionRole(message_id, emoji) {
+        if (!confirm(`메시지 ID ${message_id}에서 이모지 "${emoji}"에 대한 리액션 역할을 정말 제거하시겠습니까?`)) {
+            return;
+        }
+
+        showMessage(listRrStatusMessage, '리액션 역할 제거 중...', 'info');
+        // Disable all delete buttons temporarily to prevent multiple clicks
+        document.querySelectorAll('.delete-btn').forEach(btn => btn.disabled = true);
+
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/reaction_roles_proxy/remove`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message_id: message_id, emoji: emoji })
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                showMessage(listRrStatusMessage, `리액션 역할 제거 성공! ${data.message || ''}`, 'success');
+                fetchReactionRoles(); // Refresh the list
+            } else {
+                showMessage(listRrStatusMessage, `리액션 역할 제거 실패: ${data.error || '알 수 없는 오류'}`, 'error');
+                console.error('리액션 역할 제거 API 오류:', data.error);
+            }
+        } catch (error) {
+            showMessage(listRrStatusMessage, `리액션 역할 제거 중 네트워크 오류: ${error.message}`, 'error');
+            console.error('리액션 역할 제거 중 네트워크 오류:', error);
+        } finally {
+            // Re-enable all delete buttons
+            document.querySelectorAll('.delete-btn').forEach(btn => btn.disabled = false);
+        }
     }
 
     // --- Initialization ---
@@ -459,14 +638,20 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchBotStatus();
     fetchCommandUsageStats();
     fetchLogs();
+    fetchConfig(); // Fetch configuration on load
+    fetchReactionRoles(); // Fetch reaction roles on load
 
     // Set up all event listeners
     setupControlPanelListeners();
     setupAnnouncementSenderListeners();
     setupLogsViewerListeners();
+    addReactionRoleBtn.addEventListener('click', addReactionRole); // Add listener for new RR button
+
 
     // Set intervals for dynamic updates
     setInterval(fetchBotStatus, 5000); // Fetch dashboard stats every 5 seconds
     setInterval(fetchCommandUsageStats, 10000); // Fetch command stats every 10 seconds
     setInterval(fetchLogs, 3000); // Fetch logs every 3 seconds for near real-time updates
+    // setInterval(fetchConfig, 30000); // Config doesn't change often, less frequent update
+    // setInterval(fetchReactionRoles, 15000); // Reaction roles might change, update more frequently than config
 });
