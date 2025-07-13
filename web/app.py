@@ -4,30 +4,12 @@ from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import requests # For making HTTP requests to the external bot API
 import logging # Import logging module
-from threading import Thread # Keep Thread import if you need it for other future tasks, but not for bot_api_thread here
-import sys # Import sys to modify path
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Adjust sys.path to allow importing bot.py from the parent directory
-# This assumes app.py is in 'Exceed-GUI/web/' and bot.py is in 'Exceed-GUI/'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Now import the bot's API app and related functions
-try:
-    from bot import api_app as bot_api_app, run_api_server, main as run_bot_main_async
-    # The 'main' function (run_bot_main_async) is not directly used here for running the bot,
-    # as bot.py's __main__ block handles its own startup including the API server.
-    # It's kept for reference if you ever need to programmatically start the bot's core.
-except ImportError as e:
-    print(f"CRITICAL ERROR: Failed to import bot components from bot.py. "
-          f"Ensure bot.py is in the parent directory of web/ and all dependencies are installed. Error: {e}", file=sys.stderr)
-    sys.exit(1)
-
-
 # Configure Flask for the web UI
-# These paths are now relative to the location of app.py (i.e., 'web/')
+# These paths are relative to the location of app.py (i.e., 'web/')
 app = Flask(__name__,
             static_folder='static',    # Points to web/static
             template_folder='templates') # Points to web/templates
@@ -246,4 +228,3 @@ if __name__ == '__main__':
     ui_logger.info(f"Starting Flask UI app on http://127.0.0.1:5000/")
     ui_logger.info(f"Ensure your bot's API is running separately on {EXISTING_BOT_API_URL}")
     run_flask_app()
-
