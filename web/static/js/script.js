@@ -353,12 +353,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 allLogEntries = data.logs.map(logLine => {
                     // Attempt to parse log line into structured object
                     // Example log format: "[{asctime}] [{levelname:.<8}] [{name}] {message}"
-                    const match = logLine.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(.*?)\s*\] \[(.*?)\] (.*)$/);
+                    // This regex is now more flexible to handle potential variations and ensure 'name' is captured.
+                    const match = logLine.match(/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(.*?)\s*\] \[(.*?)(?:\])? (.*)$/);
                     if (match) {
                         return {
                             timestamp: match[1],
                             level: match[2].trim().toUpperCase(),
-                            name: match[3].trim(),
+                            name: match[3] ? match[3].trim() : 'UNKNOWN', // Ensure name is not undefined
                             message: match[4].trim()
                         };
                     }
