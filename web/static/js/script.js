@@ -1,193 +1,241 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Dashboard: Bot Status & Quick Stats ---
-    const statusElement = document.getElementById('status');
+    // --- Dashboard Elements ---
+    const statusIndicator = document.getElementById('status');
     const uptimeElement = document.getElementById('uptime');
     const latencyElement = document.getElementById('latency');
     const commandsTodayElement = document.getElementById('commands-today');
     const activeUsersElement = document.getElementById('active-users');
     const serverCountElement = document.getElementById('server-count');
 
-    async function fetchBotInfo() {
-        try {
-            const response = await fetch('/api/bot_info');
-            const data = await response.json();
-
-            statusElement.textContent = data.status;
-            uptimeElement.textContent = data.uptime;
-            latencyElement.textContent = data.latency_ms !== "N/A" ? `${data.latency_ms}ms` : data.latency_ms;
-            commandsTodayElement.textContent = data.commands_used_today;
-            activeUsersElement.textContent = data.user_count;
-            serverCountElement.textContent = data.guild_count;
-
-            // Update status color
-            if (data.status === 'Online') {
-                statusElement.classList.add('online');
-                statusElement.classList.remove('offline');
-            } else {
-                statusElement.classList.add('offline');
-                statusElement.classList.remove('online');
-            }
-
-            // Display any error message from the bot API (if provided by the backend)
-            if (data.error) {
-                console.warn("Bot API communication error:", data.error);
-                // Optionally display this error to the user in a dedicated area
-                // e.g., a small red text below the status
-            }
-
-
-        } catch (error) {
-            console.error('Error fetching bot info from UI backend:', error);
-            statusElement.textContent = 'Error';
-            uptimeElement.textContent = 'Error';
-            latencyElement.textContent = 'Error';
-            commandsTodayElement.textContent = 'Error';
-            activeUsersElement.textContent = 'Error';
-            serverCountElement.textContent = 'Error';
-            statusElement.classList.add('offline'); // Indicate error as offline
-            statusElement.classList.remove('online');
-        }
-    }
-
-    // Fetch bot info on page load
-    fetchBotInfo();
-    // Refresh bot info every 5 seconds
-    setInterval(fetchBotInfo, 5000);
-
-    // --- Send Announcement Section ---
-    const sendAnnouncementBtn = document.getElementById('send-announcement-btn');
-    const announcementMessageInput = document.getElementById('announcement-message');
-    const announcementChannelInput = document.getElementById('announcement-channel');
-    const announcementStatusMessage = document.getElementById('announcement-status-message');
-
-    if (sendAnnouncementBtn) {
-        sendAnnouncementBtn.addEventListener('click', async () => {
-            const message = announcementMessageInput.value.trim();
-            const channelId = announcementChannelInput.value.trim();
-
-            // Clear previous messages
-            announcementStatusMessage.textContent = '';
-            announcementStatusMessage.className = 'message'; // Reset classes
-
-            if (!message || !channelId) {
-                announcementStatusMessage.textContent = 'Please enter both a message and a channel ID.';
-                announcementStatusMessage.classList.add('error');
-                return;
-            }
-
-            // Basic validation for channel ID (should be numeric)
-            if (!/^\d+$/.test(channelId)) {
-                announcementStatusMessage.textContent = 'Channel ID must be a number.';
-                announcementStatusMessage.classList.add('error');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/send_announcement', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: message, channel_id: parseInt(channelId) }), // Convert to int
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    announcementStatusMessage.textContent = data.message;
-                    announcementStatusMessage.classList.add('success');
-                    announcementMessageInput.value = ''; // Clear message
-                    announcementChannelInput.value = ''; // Clear channel ID
-                } else {
-                    announcementStatusMessage.textContent = `Error: ${data.error}`;
-                    announcementStatusMessage.classList.add('error');
-                }
-            } catch (error) {
-                console.error('Error sending announcement:', error);
-                announcementStatusMessage.textContent = 'An error occurred while sending the announcement.';
-                announcementStatusMessage.classList.add('error');
-            }
-        });
-    }
-
-    // --- Bot Control Panel ---
+    // --- Bot Control Panel Elements ---
     const restartBotBtn = document.getElementById('restart-bot-btn');
     const reloadCogsBtn = document.getElementById('reload-cogs-btn');
     const updateGitBtn = document.getElementById('update-git-btn');
     const controlStatusMessage = document.getElementById('control-status-message');
 
-    async function sendBotControlAction(action) {
-        // Clear previous messages
-        controlStatusMessage.textContent = '';
-        controlStatusMessage.className = 'message'; // Reset classes
+    // --- Send Announcement Elements ---
+    const announcementMessageInput = document.getElementById('announcement-message');
+    const announcementChannelInput = document.getElementById('announcement-channel');
+    const sendAnnouncementBtn = document.getElementById('send-announcement-btn');
+    const announcementStatusMessage = document.getElementById('announcement-status-message');
 
-        // Show a confirmation modal (simple JS confirm for now, replace with custom UI)
-        if (!confirm(`Are you sure you want to ${action.replace('_', ' ')} the bot?`)) {
-            controlStatusMessage.textContent = 'Action cancelled.';
-            controlStatusMessage.classList.add('info');
+    // --- Command Usage Stats Elements ---
+    const commandUsageChartCtx = document.getElementById('commandUsageChart').getContext('2d');
+    const topCommandsList = document.getElementById('top-commands-list');
+    let commandUsageChart; // To hold the Chart.js instance
+
+    // --- Logs Viewer Elements ---
+    const logOutput = document.getElementById('log-output');
+    const logFilterInput = document.getElementById('log-filter');
+    const logLevelFilterSelect = document.getElementById('log-level-filter');
+    const clearLogsBtn = document.getElementById('clear-logs-btn');
+    const downloadLogsBtn = document.getElementById('download-logs-btn');
+
+    // --- Simulated Data ---
+    let currentUptimeSeconds = 0;
+    let botOnline = true; // Initial bot status
+    let simulatedCommandsToday = 0;
+    let simulatedActiveUsers = 0;
+    let simulatedServerCount = 0;
+
+    // Simulated log data
+    let allLogEntries = [
+        { timestamp: '2025-07-13 15:00:01', level: 'INFO', message: 'Bot started successfully.' },
+        { timestamp: '2025-07-13 15:00:05', level: 'WARN', message: 'Missing permissions for command \'kick\' in channel #general.' },
+        { timestamp: '2025-07-13 15:00:10', level: 'INFO', message: 'User \'Alice\' used command \'!hello\'.' },
+        { timestamp: '2025-07-13 15:00:15', level: 'ERROR', message: 'Failed to connect to database: Connection refused.' },
+        { timestamp: '2025-07-13 15:00:20', level: 'INFO', message: 'User \'Bob\' used command \'!ping\'.' },
+        { timestamp: '2025-07-13 15:00:25', level: 'INFO', message: 'New guild joined: "Awesome Server".' },
+        { timestamp: '2025-07-13 15:00:30', level: 'WARN', message: 'API rate limit exceeded for user \'Charlie\'.' },
+        { timestamp: '2025-07-13 15:00:35', level: 'INFO', message: 'Command \'!help\' executed by \'Dave\'.' },
+        { timestamp: '2025-07-13 15:00:40', level: 'ERROR', message: 'Unhandled promise rejection in event handler.' },
+        { timestamp: '2025-07-13 15:00:45', level: 'INFO', message: 'User \'Eve\' used command \'!info\'.' },
+    ];
+
+    // Simulated command usage data for the chart
+    let commandUsageData = {
+        '!hello': 150,
+        '!ping': 120,
+        '!help': 80,
+        '!info': 50,
+        '!stats': 30,
+        '!moderation': 25,
+        '!music': 40
+    };
+
+    /**
+     * Displays a message in a specified element with a given type (success, error, info).
+     * The message will fade out after a few seconds.
+     * @param {HTMLElement} messageElement - The HTML element to display the message in.
+     * @param {string} message - The message text.
+     * @param {'success'|'error'|'info'} type - The type of message for styling.
+     */
+    function showMessage(messageElement, message, type) {
+        messageElement.textContent = message;
+        messageElement.className = `message show ${type}`; // Apply classes
+        setTimeout(() => {
+            messageElement.classList.remove('show'); // Fade out
+            // Optionally clear text after fade out for cleaner re-display
+            setTimeout(() => messageElement.textContent = '', 300);
+        }, 3000); // Message visible for 3 seconds
+    }
+
+    // --- Dashboard Functions ---
+    /**
+     * Formats seconds into HH:MM:SS string.
+     * @param {number} totalSeconds - The total number of seconds.
+     * @returns {string} Formatted time string.
+     */
+    function formatUptime(totalSeconds) {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        const pad = (num) => String(num).padStart(2, '0');
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    /**
+     * Updates the dashboard statistics with simulated data.
+     */
+    function updateDashboardStats() {
+        // Bot Status
+        statusIndicator.textContent = botOnline ? 'Online' : 'Offline';
+        statusIndicator.className = `status-indicator ${botOnline ? 'online' : 'offline'}`;
+
+        // Uptime
+        currentUptimeSeconds++;
+        uptimeElement.textContent = formatUptime(currentUptimeSeconds);
+
+        // Latency (simulated)
+        latencyElement.textContent = `${(Math.random() * (100 - 20) + 20).toFixed(2)} ms`;
+
+        // Quick Stats (simulated and incremented)
+        simulatedCommandsToday += Math.floor(Math.random() * 3); // 0-2 new commands
+        simulatedActiveUsers = Math.floor(Math.random() * (500 - 100) + 100); // 100-500 active users
+        simulatedServerCount = Math.floor(Math.random() * (100 - 20) + 20); // 20-100 servers
+
+        commandsTodayElement.textContent = simulatedCommandsToday;
+        activeUsersElement.textContent = simulatedActiveUsers;
+        serverCountElement.textContent = simulatedServerCount;
+    }
+
+    // --- Bot Control Panel Functions ---
+    /**
+     * Simulates a bot control action (restart, reload, update).
+     * @param {string} actionName - The name of the action (e.g., "Restart Bot").
+     * @param {HTMLElement} messageElement - The element to display status messages.
+     */
+    function simulateBotAction(actionName, messageElement) {
+        showMessage(messageElement, `Attempting to ${actionName.toLowerCase()}...`, 'info');
+        // Disable buttons during action
+        restartBotBtn.disabled = true;
+        reloadCogsBtn.disabled = true;
+        updateGitBtn.disabled = true;
+        sendAnnouncementBtn.disabled = true; // Also disable announcement during bot restart/reload
+
+        // Simulate network delay
+        setTimeout(() => {
+            const success = Math.random() > 0.2; // 80% chance of success
+            if (success) {
+                showMessage(messageElement, `${actionName} successful!`, 'success');
+                if (actionName === "Restart Bot") {
+                    botOnline = true; // Ensure bot is online after restart
+                    currentUptimeSeconds = 0; // Reset uptime
+                    updateDashboardStats(); // Update dashboard immediately
+                }
+            } else {
+                showMessage(messageElement, `${actionName} failed. Please check logs.`, 'error');
+            }
+            // Re-enable buttons
+            restartBotBtn.disabled = false;
+            reloadCogsBtn.disabled = false;
+            updateGitBtn.disabled = false;
+            sendAnnouncementBtn.disabled = false;
+        }, 1500); // Simulate 1.5 seconds delay
+    }
+
+    /**
+     * Sets up event listeners for bot control buttons.
+     */
+    function setupControlPanelListeners() {
+        restartBotBtn.addEventListener('click', () => simulateBotAction('Restart Bot', controlStatusMessage));
+        reloadCogsBtn.addEventListener('click', () => simulateBotAction('Reload Cogs', controlStatusMessage));
+        updateGitBtn.addEventListener('click', () => simulateBotAction('Update from Git', controlStatusMessage));
+    }
+
+    // --- Send Announcement Functions ---
+    /**
+     * Handles sending an announcement.
+     */
+    function handleSendAnnouncement() {
+        const message = announcementMessageInput.value.trim();
+        const channelId = announcementChannelInput.value.trim();
+
+        if (!message) {
+            showMessage(announcementStatusMessage, 'Please enter an announcement message.', 'error');
+            return;
+        }
+        if (!channelId || !/^\d{17,19}$/.test(channelId)) { // Basic Discord channel ID validation (17-19 digits)
+            showMessage(announcementStatusMessage, 'Please enter a valid Discord channel ID (17-19 digits).', 'error');
             return;
         }
 
-        try {
-            const response = await fetch('/api/control_bot', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ action: action }),
-            });
+        showMessage(announcementStatusMessage, 'Sending announcement...', 'info');
+        sendAnnouncementBtn.disabled = true; // Disable button during sending
 
-            const data = await response.json();
-
-            if (data.success) {
-                controlStatusMessage.textContent = data.message;
-                controlStatusMessage.classList.add('success');
+        setTimeout(() => {
+            const success = Math.random() > 0.1; // 90% chance of success
+            if (success) {
+                showMessage(announcementStatusMessage, `Announcement sent to channel ${channelId}!`, 'success');
+                announcementMessageInput.value = ''; // Clear message
+                // announcementChannelInput.value = ''; // Keep channel ID for convenience
             } else {
-                controlStatusMessage.textContent = `Error: ${data.error}`;
-                controlStatusMessage.classList.add('error');
+                showMessage(announcementStatusMessage, 'Failed to send announcement. Bot might be offline or channel invalid.', 'error');
             }
-        } catch (error) {
-            console.error(`Error performing ${action} action:`, error);
-            controlStatusMessage.textContent = `An error occurred while trying to ${action}.`;
-            controlStatusMessage.classList.add('error');
-        }
+            sendAnnouncementBtn.disabled = false; // Re-enable button
+        }, 1200); // Simulate 1.2 seconds delay
     }
 
-    if (restartBotBtn) {
-        restartBotBtn.addEventListener('click', () => sendBotControlAction('restart'));
-    }
-    if (reloadCogsBtn) {
-        reloadCogsBtn.addEventListener('click', () => sendBotControlAction('reload_cogs'));
-    }
-    if (updateGitBtn) {
-        updateGitBtn.addEventListener('click', () => sendBotControlAction('update_git'));
+    /**
+     * Sets up event listeners for the announcement sender.
+     */
+    function setupAnnouncementSenderListeners() {
+        sendAnnouncementBtn.addEventListener('click', handleSendAnnouncement);
     }
 
-    // --- Command Usage Stats Chart ---
-    const ctx = document.getElementById('commandUsageChart');
-    if (ctx) {
-        new Chart(ctx, {
+    // --- Command Usage Stats Functions ---
+    /**
+     * Initializes the Chart.js graph for command usage.
+     */
+    function initCommandUsageChart() {
+        const labels = Object.keys(commandUsageData);
+        const dataValues = Object.values(commandUsageData);
+
+        commandUsageChart = new Chart(commandUsageChartCtx, {
             type: 'bar',
             data: {
-                labels: ['!hello', '!ping', '!help', '!info', '!moderation', '!roles'],
+                labels: labels,
                 datasets: [{
                     label: 'Commands Used',
-                    data: [150, 120, 80, 50, 30, 25], // Simulated data
+                    data: dataValues,
                     backgroundColor: [
-                        'rgba(88, 101, 242, 0.7)', // Discord blue
-                        'rgba(114, 137, 218, 0.7)', // Lighter Discord blue
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(255, 159, 64, 0.7)'
+                        'rgba(139, 92, 246, 0.8)', // Purple
+                        'rgba(255, 159, 64, 0.8)', // Orange
+                        'rgba(75, 192, 192, 0.8)', // Teal
+                        'rgba(255, 99, 132, 0.8)', // Red
+                        'rgba(54, 162, 235, 0.8)', // Blue
+                        'rgba(153, 102, 255, 0.8)', // Violet
+                        'rgba(201, 203, 207, 0.8)' // Grey
                     ],
                     borderColor: [
-                        'rgba(88, 101, 242, 1)',
-                        'rgba(114, 137, 218, 1)',
-                        'rgba(54, 162, 235, 1)',
+                        'rgba(139, 92, 246, 1)',
+                        'rgba(255, 159, 64, 1)',
                         'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
                         'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
+                        'rgba(201, 203, 207, 1)'
                     ],
                     borderWidth: 1
                 }]
@@ -198,109 +246,162 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Uses'
+                        ticks: {
+                            color: '#e0e0e0' // White ticks
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)' // Light grid lines
                         }
                     },
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Command'
+                        ticks: {
+                            color: '#e0e0e0' // White ticks
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)' // Light grid lines
                         }
                     }
                 },
                 plugins: {
                     legend: {
-                        display: false // Hide legend for single dataset
+                        labels: {
+                            color: '#e0e0e0' // White legend text
+                        }
                     },
-                    title: {
-                        display: true,
-                        text: 'Top Command Usage (Simulated)'
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.7)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff'
                     }
                 }
             }
         });
+        updateTopCommandsList();
     }
 
-    // --- Logs Viewer ---
-    const logOutput = document.getElementById('log-output');
-    const logFilterInput = document.getElementById('log-filter');
-    const logLevelFilterSelect = document.getElementById('log-level-filter');
-    const clearLogsBtn = document.getElementById('clear-logs-btn');
-    const downloadLogsBtn = document.getElementById('download-logs-btn');
+    /**
+     * Updates the "Top Commands" list based on current command usage data.
+     */
+    function updateTopCommandsList() {
+        topCommandsList.innerHTML = ''; // Clear existing list
 
-    // Simulated live logs (in a real app, you'd fetch these from the bot's API,
-    // potentially via WebSockets for real-time streaming)
-    const simulatedLogs = [
-        { text: "[INFO] 2025-07-13 15:00:01 Bot started successfully.", level: "info" },
-        { text: "[WARN] 2025-07-13 15:00:05 Missing permissions for command 'kick' in channel #general.", level: "warn" },
-        { text: "[INFO] 2025-07-13 15:00:10 User 'Alice' used command '!hello'.", level: "info" },
-        { text: "[ERROR] 2025-07-13 15:00:15 Failed to connect to database: Connection refused.", level: "error" },
-        { text: "[INFO] 2025-07-13 15:00:20 User 'Bob' used command '!ping'.", level: "info" },
-        { text: "[INFO] 2025-07-13 15:00:25 Guild 'My Awesome Server' added.", level: "info" },
-        { text: "[WARN] 2025-07-13 15:00:30 Command 'announce' failed: Channel not found.", level: "warn" },
-        { text: "[INFO] 2025-07-13 15:00:35 User 'Charlie' used command '!help'.", level: "info" },
-        { text: "[ERROR] 2025-07-13 15:00:40 Unhandled exception in cog 'ModerationCog'.", level: "error" },
-        { text: "[INFO] 2025-07-13 15:00:45 Bot processed 100 messages.", level: "info" }
-    ];
+        // Sort commands by usage count in descending order
+        const sortedCommands = Object.entries(commandUsageData).sort(([, a], [, b]) => b - a);
 
-    let currentDisplayedLogs = [...simulatedLogs]; // Start with initial logs
+        sortedCommands.forEach(([command, count]) => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<span>${command}:</span> <span>${count} uses</span>`;
+            topCommandsList.appendChild(listItem);
+        });
+    }
 
+    // --- Logs Viewer Functions ---
+    /**
+     * Renders log entries to the log output area based on current filters.
+     */
     function renderLogs() {
-        logOutput.innerHTML = ''; // Clear current view
+        logOutput.innerHTML = ''; // Clear current logs
+
         const filterText = logFilterInput.value.toLowerCase();
         const filterLevel = logLevelFilterSelect.value;
 
-        currentDisplayedLogs.forEach(log => {
-            const matchesText = log.text.toLowerCase().includes(filterText);
-            const matchesLevel = (filterLevel === 'all' || log.level === filterLevel);
-
-            if (matchesText && matchesLevel) {
-                const p = document.createElement('p');
-                p.classList.add('log-entry', log.level);
-                p.textContent = log.text;
-                logOutput.appendChild(p);
-            }
+        const filteredLogs = allLogEntries.filter(entry => {
+            const matchesText = entry.message.toLowerCase().includes(filterText) ||
+                                entry.timestamp.toLowerCase().includes(filterText) ||
+                                entry.level.toLowerCase().includes(filterText);
+            const matchesLevel = filterLevel === 'all' || entry.level.toLowerCase() === filterLevel;
+            return matchesText && matchesLevel;
         });
-        logOutput.scrollTop = logOutput.scrollHeight; // Scroll to bottom
+
+        filteredLogs.forEach(entry => {
+            const p = document.createElement('p');
+            p.className = `log-entry ${entry.level.toLowerCase()}`;
+            p.textContent = `[${entry.level}] ${entry.timestamp} ${entry.message}`;
+            logOutput.appendChild(p);
+        });
+
+        // Scroll to the bottom of the log output
+        logOutput.scrollTop = logOutput.scrollHeight;
     }
 
-    // Simulate appending new logs
-    let logCounter = simulatedLogs.length;
-    setInterval(() => {
-        logCounter++;
-        const newLog = {
-            text: `[INFO] ${new Date().toISOString().slice(0, 19).replace('T', ' ')} Simulated log entry ${logCounter}.`,
-            level: "info"
+    /**
+     * Simulates adding a new log entry.
+     */
+    function simulateNewLogEntry() {
+        const levels = ['INFO', 'WARN', 'ERROR'];
+        const randomLevel = levels[Math.floor(Math.random() * levels.length)];
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+        const messages = {
+            'INFO': [
+                'User \'Alice\' executed command \'!status\'.',
+                'Bot connected to Discord API.',
+                'Successfully loaded cog \'Moderation\'.',
+                'Message sent to #general.',
+                'Database backup completed.'
+            ],
+            'WARN': [
+                'Guild cache inconsistency detected.',
+                'Command \'!ban\' used without reason.',
+                'Slow response from external API.',
+                'Missing environment variable: DISCORD_TOKEN_ALT.'
+            ],
+            'ERROR': [
+                'Failed to send message: Channel not found.',
+                'Database query failed: Syntax error.',
+                'Uncaught exception in event loop.',
+                'Discord API connection lost.'
+            ]
         };
-        currentDisplayedLogs.push(newLog);
-        renderLogs(); // Re-render to include new log
-    }, 10000); // Add a new log every 10 seconds
+        const randomMessage = messages[randomLevel][Math.floor(Math.random() * messages[randomLevel].length)];
 
-    // Event listeners for log controls
-    logFilterInput.addEventListener('input', renderLogs);
-    logLevelFilterSelect.addEventListener('change', renderLogs);
+        const newEntry = { timestamp, level: randomLevel, message: randomMessage };
+        allLogEntries.push(newEntry);
+        renderLogs(); // Re-render logs with new entry
+    }
 
-    clearLogsBtn.addEventListener('click', () => {
-        currentDisplayedLogs = []; // Clear data
-        renderLogs(); // Render empty view
-        logOutput.innerHTML = '<p class="log-entry info">Logs cleared.</p>';
-    });
+    /**
+     * Sets up event listeners for the logs viewer controls.
+     */
+    function setupLogsViewerListeners() {
+        logFilterInput.addEventListener('input', renderLogs);
+        logLevelFilterSelect.addEventListener('change', renderLogs);
 
-    downloadLogsBtn.addEventListener('click', () => {
-        const logContent = currentDisplayedLogs.map(log => log.text).join('\n');
-        const blob = new Blob([logContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
+        clearLogsBtn.addEventListener('click', () => {
+            logOutput.innerHTML = ''; // Clear display
+            // Note: This only clears the view, not the `allLogEntries` array
+            // If you want to clear all data, uncomment: allLogEntries = [];
+            showMessage(controlStatusMessage, 'Log view cleared.', 'info');
+        });
 
-    // Initial render of logs
+        downloadLogsBtn.addEventListener('click', () => {
+            const logContent = allLogEntries.map(entry => `[${entry.level}] ${entry.timestamp} ${entry.message}`).join('\n');
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `discord_bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Clean up
+            showMessage(controlStatusMessage, 'Logs downloaded successfully.', 'success');
+        });
+    }
+
+    // --- Initialization ---
+    // Initial update for dashboard and logs
+    updateDashboardStats();
     renderLogs();
+    initCommandUsageChart();
+
+    // Set up all event listeners
+    setupControlPanelListeners();
+    setupAnnouncementSenderListeners();
+    setupLogsViewerListeners();
+
+    // Set intervals for dynamic updates
+    setInterval(updateDashboardStats, 1000); // Update dashboard every second
+    setInterval(simulateNewLogEntry, 5000); // Add a new simulated log entry every 5 seconds
 });
