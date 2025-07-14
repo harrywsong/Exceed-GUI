@@ -387,30 +387,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
-                allLogEntries = data.logs.map(logLine => {
-                    if (logLine.toLowerCase().includes('werkzeug')) {
-                        const simpleMatch = logLine.match(/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(.*?)\s*\]/);
-                        return {
-                            timestamp: simpleMatch ? simpleMatch[1] : 'N/A',
-                            level: simpleMatch ? simpleMatch[2].trim().toUpperCase() : 'INFO',
-                            name: 'werkzeug',
-                            message: logLine.trim()
-                        };
-                    }
+                // *** IMPORTANT CHANGE HERE ***
+                // Directly assign the structured logs received from the API.
+                // The Python backend is now sending already parsed and filtered log objects.
+                allLogEntries = data.logs;
 
-                    const structuredMatch = logLine.match(/.*?\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] \[(.*?)\s*\] \[(.*?)(?:\])? (.*)$/);
+                // Debugging (optional): Log the structure of a log entry to confirm
+                // if (allLogEntries.length > 0) {
+                //     console.log("Received structured log entry example:", allLogEntries[0]);
+                // }
 
-                    if (structuredMatch) {
-                        return {
-                            timestamp: structuredMatch[1],
-                            level: structuredMatch[2].trim().toUpperCase(),
-                            name: structuredMatch[3] ? structuredMatch[3].trim() : 'UNKNOWN',
-                            message: structuredMatch[4].trim()
-                        };
-                    }
-
-                    return { timestamp: 'N/A', level: 'UNKNOWN', name: 'UNKNOWN', message: logLine.trim() };
-                });
                 renderLogs();
             } else {
                 console.error('Failed to fetch logs:', data.error);
@@ -421,8 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (logOutput) logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 네트워크 오류가 발생했습니다.</p>';
         }
     }
-
-    function renderLogs() {
+function renderLogs() {
         if (!logOutput) {
             console.warn("Log output element not found. Cannot render logs.");
             return;
@@ -430,26 +415,49 @@ document.addEventListener('DOMContentLoaded', () => {
         logOutput.innerHTML = '';
 
         const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : '');
-        const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value : 'all');
+        const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all'); // Ensure filterLevel is lowercase
 
         const filteredLogs = allLogEntries.filter(entry => {
-            // Filter out 'werkzeug' logs
-            if (entry.name.toLowerCase() === 'werkzeug') {
-                return false;
+            // Your Python API already filters out 'werkzeug' or formats them.
+            // If you still want to explicitly filter on client, ensure 'logger_name' or 'name' is checked.
+            // Based on your bot.py, the parsed entries have 'logger_name'.
+            if (entry.logger_name && entry.logger_name.toLowerCase() === 'werkzeug') { // Check the correct field
+                 return false;
+            }
+            // You also had "RAW" level for unparsed lines, consider how you want to handle those.
+            if (entry.level && entry.level.toLowerCase() === 'raw') {
+                // Decide if you want to display raw logs or not
+                // For now, let's include them if no specific level filter is applied,
+                // or if the filter explicitly asks for "RAW" (though typically not a real log level)
+                if (filterLevel === 'all' || filterLevel === 'raw') {
+                    // Raw logs should still match the text filter on their message
+                    return entry.message.toLowerCase().includes(filterText);
+                }
+                return false; // Otherwise, hide raw logs if a specific level filter is active
             }
 
-            const matchesText = entry.message.toLowerCase().includes(filterText) ||
-                                entry.timestamp.toLowerCase().includes(filterText) ||
-                                entry.level.toLowerCase().includes(filterText) ||
-                                entry.name.toLowerCase().includes(filterText);
-            const matchesLevel = filterLevel === 'all' || entry.level.toLowerCase() === filterLevel;
+
+            // All properties (timestamp, level, logger_name, message) are now guaranteed to be strings
+            // because they were converted to strings in the Python backend.
+            const matchesText = (entry.message && entry.message.toLowerCase().includes(filterText)) ||
+                                (entry.timestamp && entry.timestamp.toLowerCase().includes(filterText)) ||
+                                (entry.level && entry.level.toLowerCase().includes(filterText)) ||
+                                (entry.logger_name && entry.logger_name.toLowerCase().includes(filterText)); // Check logger_name, not 'name'
+
+            const matchesLevel = filterLevel === 'all' || (entry.level && entry.level.toLowerCase() === filterLevel);
             return matchesText && matchesLevel;
         });
 
         filteredLogs.forEach(entry => {
             const p = document.createElement('p');
-            p.className = `log-entry ${entry.level.toLowerCase()}`;
-            p.textContent = `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`;
+            // Use entry.logger_name for the log source
+            const logSourceName = entry.logger_name || 'UNKNOWN'; // Fallback for safety
+            const logLevel = entry.level || 'UNKNOWN'; // Fallback for safety
+            const logTimestamp = entry.timestamp || 'N/A'; // Fallback for safety
+            const logMessage = entry.message || ''; // Fallback for safety
+
+            p.className = `log-entry ${logLevel.toLowerCase()}`;
+            p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
             logOutput.appendChild(p);
         });
 
