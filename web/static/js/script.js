@@ -585,7 +585,7 @@ function renderLogs() {
             const defaultMessage = `이것은 ${logLevel} 수준의 테스트 로그 메시지입니다.`;
 
             try {
-                const response = await fetch('/simulate_log', {
+                const response = await fetch('/api/simulate_log', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
