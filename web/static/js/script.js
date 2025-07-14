@@ -667,13 +667,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.status === 'success' || data.status === 'warning') {
                     console.log(`Simulated log: ${data.message}`);
 
-                    // If on the logs viewer tab, display the newly simulated log directly
+                    // FIX: Construct the log entry directly as the API doesn't return it
                     if (document.getElementById('logs-viewer-tab').classList.contains('active')) {
-                        // The API returns the specific log message that was just simulated
-                        // Add this single log entry to our current display and array
-                        addLogEntry(data.simulated_log_entry); // Assuming your API returns the log entry under 'simulated_log_entry' key
+                        const now = new Date();
+                        // Format timestamp to match your backend's format (e.g., YYYY-MM-DD HH:MM:SS)
+                        const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+                        const simulatedEntry = {
+                            level: logLevel.toUpperCase(), // Ensure consistency with Python's uppercase levels
+                            timestamp: timestamp,
+                            logger_name: 'Simulated', // Assign a logger name for simulated logs
+                            message: defaultMessage
+                        };
+                        addLogEntry(simulatedEntry);
                     }
-                    // No need to fetchAllHistoricalLogs here, that would bring back old logs
                 } else {
                     console.error('Error simulating log:', data.error);
                 }
