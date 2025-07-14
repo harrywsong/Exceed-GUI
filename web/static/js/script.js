@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper function to start the log fetching interval
     function startLogFetchingInterval() {
         if (!logFetchIntervalId) { // Only start if not already running
-            logFetchIntervalId = setInterval(fetchAllHistoricalLogs, 3000); // Now fetches ALL logs on interval
+            logFetchIntervalId = setInterval(fetchNewLogsOnly, 3000);
         }
     }
 
@@ -655,7 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const tabId = button.dataset.tab;
             showTab(tabId);
 
-            // Re-fetch data for the newly active tab and manage intervals
             stopAllIntervals(); // Stop all intervals first
 
             if (tabId === 'dashboard-tab') {
@@ -668,15 +667,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetchCommandUsageStats();
                 commandStatsIntervalId = setInterval(fetchCommandUsageStats, 10000);
             } else if (tabId === 'logs-viewer-tab') {
-                // When navigating to logs tab, fetch all historical logs once
-                fetchAllHistoricalLogs();
-                // Then, optionally start an interval to periodically fetch ALL logs again
-                // If you want a "true" fresh slate *only* with new events, you might NOT want this interval
-                // For now, let's keep it but understand it will re-fetch history
-                startLogFetchingInterval();
+                // When navigating to logs tab, always fetch ALL historical logs initially
+                // and reset the 'since_timestamp' filter
+                lastClearedTimestamp = null;
+                fetchNewLogsOnly(); // This call will now fetch all history if lastClearedTimestamp is null
+                startLogFetchingInterval(); // Then start interval to append new logs
             } else if (tabId === 'config-viewer-tab') {
                 fetchBotConfig();
-                // No interval for config viewer
             }
         });
     });
@@ -685,7 +682,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showTab('dashboard-tab');
     fetchBotStatus();
     botStatusIntervalId = setInterval(fetchBotStatus, 5000);
-    // Fetch command stats initially (it's part of dashboard view)
     fetchCommandUsageStats();
     commandStatsIntervalId = setInterval(fetchCommandUsageStats, 10000);
     // Do NOT fetch all historical logs or start their interval on initial load unless on logs tab
@@ -712,16 +708,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.status === 'success' || data.status === 'warning') {
                     console.log(`Simulated log: ${data.message}`);
 
-                    // FIX: Construct the log entry directly as the API doesn't return it
                     if (document.getElementById('logs-viewer-tab').classList.contains('active')) {
                         const now = new Date();
-                        // Format timestamp to match your backend's format (e.g., YYYY-MM-DD HH:MM:SS)
                         const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
                         const simulatedEntry = {
-                            level: logLevel.toUpperCase(), // Ensure consistency with Python's uppercase levels
+                            level: logLevel.toUpperCase(),
                             timestamp: timestamp,
-                            logger_name: 'Simulated', // Assign a logger name for simulated logs
+                            logger_name: 'Simulated',
                             message: defaultMessage
                         };
                         addLogEntry(simulatedEntry);
