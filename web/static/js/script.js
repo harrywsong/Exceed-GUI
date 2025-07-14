@@ -2,7 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
-    const API_BASE_URL = 'http://127.0.0.1:5000/api';
+    const API_BASE_URL = '/api';
 
     // --- Dashboard Elements ---
     const statusIndicator = document.getElementById('status');
