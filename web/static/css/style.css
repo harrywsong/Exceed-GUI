@@ -401,3 +401,51 @@ button:disabled {
     font-size: 0.8em;
     color: #72767d; /* Darker grey for IDs */
 }
+#config-output ul {
+    list-style: none; /* Remove default bullet points */
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px; /* Space between config items */
+    /* Optional: If you want columns, use grid-template-columns */
+    /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+}
+
+#config-output li {
+    background-color: #36393f; /* Dark background for each config item */
+    border-radius: 8px;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between; /* Space out key and value */
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out;
+    font-size: 0.95em;
+}
+
+#config-output li:hover {
+    transform: translateY(-2px);
+}
+
+#config-output li span:first-child { /* Style for the config key */
+    color: #b9bbbe; /* Lighter grey for the key */
+    font-weight: bold;
+    flex-shrink: 0; /* Prevent key from shrinking */
+    margin-right: 15px; /* Space between key and value */
+}
+
+#config-output li span:last-child { /* Style for the config value */
+    color: #ffffff; /* White text for the value */
+    text-align: right; /* Align value to the right */
+    word-break: break-all; /* Break long words */
+    flex-grow: 1; /* Allow value to take up remaining space */
+}
+
+/* Specific styling for error messages within config output */
+#config-output p.error {
+    color: #ed4245; /* Red color for error messages */
+    padding: 10px;
+    background-color: rgba(237, 66, 69, 0.1);
+    border-radius: 5px;
+    text-align: center;
+}

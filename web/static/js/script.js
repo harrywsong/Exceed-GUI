@@ -672,6 +672,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(fetchBotStatus, 5000);
     setInterval(fetchCommandUsageStats, 10000);
     setInterval(fetchLogs, 3000);
-    setInterval(fetchBotConfig, 30000);
+    setInterval(fetchBotConfig, 3600000);
     setInterval(fetchServerInfo, 30000);
 });
