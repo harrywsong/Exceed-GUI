@@ -290,6 +290,101 @@ button:disabled {
 .logs-viewer .log-entry.warn { color: #ebcb8b; } /* Yellowish */
 .logs-viewer .log-entry.error { color: #bf616a; } /* Reddish */
 
+/* New Editor Sections Styling */
+.config-editor .note {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px dashed #eee;
+}
+
+.config-editor #config-display {
+    background-color: #eef;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+    white-space: pre-wrap; /* Preserve whitespace and wrap text */
+    word-break: break-all; /* Break long words */
+    max-height: 400px; /* Limit height for long configs */
+    overflow-y: auto;
+}
+
+.config-editor #config-display p {
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.config-editor #config-display strong {
+    color: #5865F2;
+}
+
+.reaction-roles-editor h3 {
+    color: #5865F2;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    border-bottom: 1px solid #eef;
+    padding-bottom: 10px;
+}
+
+.reaction-roles-editor .mt-4 { /* Custom class for top margin */
+    margin-top: 40px;
+}
+
+.reaction-roles-editor button {
+    margin-top: 10px;
+    width: auto; /* Allow buttons to size naturally */
+    padding: 10px 18px;
+    font-size: 1rem;
+}
+
+.reaction-roles-editor .table-container {
+    overflow-x: auto; /* Enable horizontal scrolling for small screens */
+    margin-top: 20px;
+}
+
+.reaction-roles-editor table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden; /* Ensures rounded corners apply to content */
+}
+
+.reaction-roles-editor th,
+.reaction-roles-editor td {
+    border: 1px solid #e0e0e0;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.reaction-roles-editor th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap; /* Prevent headers from wrapping */
+}
+
+.reaction-roles-editor tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.reaction-roles-editor tbody tr:hover {
+    background-color: #f2f2f2;
+}
+
+.reaction-roles-editor .delete-btn {
+    background-color: #dc3545; /* Red for delete */
+}
+
+.reaction-roles-editor .delete-btn:hover {
+    background-color: #c82333;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .container {
@@ -335,4 +430,55 @@ button:disabled {
         width: 100%;
         margin-bottom: 10px;
     }
+
+    .reaction-roles-editor table,
+    .reaction-roles-editor thead,
+    .reaction-roles-editor tbody,
+    .reaction-roles-editor th,
+    .reaction-roles-editor td,
+    .reaction-roles-editor tr {
+        display: block;
+    }
+
+    .reaction-roles-editor thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .reaction-roles-editor tr {
+        border: 1px solid #e0e0e0;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
+
+    .reaction-roles-editor td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%; /* Space for the label */
+        text-align: right;
+    }
+
+    .reaction-roles-editor td:before {
+        position: absolute;
+        left: 15px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        color: #777;
+    }
+
+    .reaction-roles-editor td:nth-of-type(1):before { content: "메시지 ID:"; }
+    .reaction-roles-editor td:nth-of-type(2):before { content: "채널 ID:"; }
+    .reaction-roles-editor td:nth-of-type(3):before { content: "이모지:"; }
+    .reaction-roles-editor td:nth-of-type(4):before { content: "역할 ID:"; }
+    .reaction-roles-editor td:nth-of-type(5):before { content: "액션:"; }
+
+    .reaction-roles-editor td:last-child {
+        border-bottom: none;
+    }
 }
+
