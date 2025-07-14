@@ -576,4 +576,35 @@ function renderLogs() {
     setInterval(fetchLogs, 3000);
     setInterval(fetchServerInfo, 15000); // Fetch server info every 15 seconds
     // No interval for fetchBotConfig as config typically doesn't change frequently.
+
+    const simulateButtons = document.querySelectorAll('.simulate-log-btn');
+
+    simulateButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+            const logLevel = button.dataset.logLevel;
+            const defaultMessage = `이것은 ${logLevel} 수준의 테스트 로그 메시지입니다.`;
+
+            try {
+                const response = await fetch('/simulate_log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ level: logLevel, message: defaultMessage })
+                });
+
+                const data = await response.json();
+                if (data.status === 'success' || data.status === 'warning') {
+                    console.log(`Simulated log: ${data.message}`);
+                    // Optionally, force a log refresh after simulating a log
+                    fetchLogs();
+                } else {
+                    console.error('Error simulating log:', data.error);
+                }
+            } catch (error) {
+                console.error('Network error during log simulation:', error);
+            }
+        });
+    });
+
 });

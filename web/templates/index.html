@@ -110,7 +110,7 @@
                 </div>
             </div>
 
-            <div id="logs-viewer-tab" class="tab-pane">
+<div id="logs-viewer-tab" class="tab-pane">
                 <div class="card logs-viewer">
                     <h2>실시간 로그</h2>
                     <div class="log-controls">
@@ -124,11 +124,19 @@
                         <button id="clear-logs-btn"><i class="fas fa-eraser"></i> 화면 지우기</button>
                         <button id="download-logs-btn"><i class="fas fa-download"></i> 다운로드</button>
                     </div>
+
+                    <div class="log-simulation-controls">
+                        <h3>로그 시뮬레이션</h3>
+                        <button class="simulate-log-btn" data-log-level="INFO">INFO 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="WARNING">WARNING 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="ERROR">ERROR 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="DEBUG">DEBUG 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="CRITICAL">CRITICAL 로그 생성</button>
+                    </div>
                     <div class="log-output" id="log-output">
                         </div>
                 </div>
             </div>
-
             <div id="config-viewer-tab" class="tab-pane">
                 <div class="card config-viewer">
                     <h2>설정 뷰어</h2>
