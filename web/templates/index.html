@@ -93,11 +93,13 @@
             </div>
         </div>
 
-        <!-- Configuration Editor (Placeholder - More complex, requires backend handling of .env) -->
-        <div class="card config-editor">
-            <h2><i class="fas fa-cogs"></i> Configuration Editor (Advanced)</h2>
-            <p>This section would allow editing .env values. Requires careful backend implementation for security and live updates.</p>
-            <button disabled>Edit Configuration (Coming Soon)</button>
+        <!-- Configuration Viewer Section (FIXED) -->
+        <div class="card config-viewer">
+            <h2><i class="fas fa-cogs"></i> Configuration Viewer</h2>
+            <p><i>Displaying non-sensitive values from the bot's configuration file.</i></p>
+            <div id="config-output" class="config-list">
+                <p>Loading configuration...</p>
+            </div>
         </div>
 
         <!-- Reaction Roles Editor (Placeholder - Complex UI) -->

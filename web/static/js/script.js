@@ -1,3 +1,5 @@
+// web/static/js/script.js
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
     // This now points to the Flask UI app's API, which proxies requests to the bot's API.
@@ -36,6 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadLogsBtn = document.getElementById('download-logs-btn');
 
     let allLogEntries = []; // Will store fetched log entries
+
+    // --- Configuration Viewer Elements ---
+    const configOutput = document.getElementById('config-output');
 
 
     /**
@@ -454,11 +459,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Configuration Viewer Functions ---
+    /**
+     * Fetches non-sensitive bot config from the backend and displays it.
+     */
+    async function fetchBotConfig() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/config`);
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                configOutput.innerHTML = ''; // Clear loading message
+                if (Object.keys(data.config).length === 0) {
+                    configOutput.innerHTML = '<p>No displayable configuration variables found.</p>';
+                    return;
+                }
+                const ul = document.createElement('ul');
+                for (const [key, value] of Object.entries(data.config)) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${key}:</span> <span>${value}</span>`;
+                    ul.appendChild(li);
+                }
+                configOutput.appendChild(ul);
+            } else {
+                console.error('Failed to fetch bot config:', data.error);
+                configOutput.innerHTML = `<p class="error">Error fetching configuration: ${data.error || 'Unknown error'}</p>`;
+            }
+        } catch (error) {
+            console.error('Network error fetching bot config:', error);
+            configOutput.innerHTML = '<p class="error">Network error fetching configuration.</p>';
+        }
+    }
+
     // --- Initialization ---
     // Initial fetches for live data
     fetchBotStatus();
     fetchCommandUsageStats();
     fetchLogs();
+    fetchBotConfig(); // <-- Add this call
 
     // Set up all event listeners
     setupControlPanelListeners();

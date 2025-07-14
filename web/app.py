@@ -183,6 +183,19 @@ def control_bot():
         ui_logger.critical(f"An unexpected error occurred in control_bot: {e}", exc_info=True)
         return jsonify({"success": False, "error": f"An unexpected error occurred: {e}"}), 500
 
+@app.route('/api/config', methods=['GET'])
+def get_config_proxy():
+    """
+    Proxies the request to the bot's /api/config endpoint.
+    """
+    try:
+        response = requests.get(f"{EXISTING_BOT_API_URL}/api/config", timeout=10)
+        response.raise_for_status()
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        ui_logger.error(f"Error proxying config request to bot API: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"Failed to fetch config from bot API: {e}"}), 500
+
 @app.route('/api/logs', methods=['GET'])
 def get_logs_proxy():
     """
