@@ -603,68 +603,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * Fetches and displays the current reaction roles.
-     */
-    async function fetchReactionRoles() {
-        if (!currentReactionRolesList) { // Crucial null check at the beginning
-            console.warn("Element with ID 'current-reaction-roles-list' not found. Cannot fetch or display reaction roles.");
-            return;
-        }
-        currentReactionRolesList.innerHTML = '<p>현재 리액션 역할 로딩 중...</p>'; // Korean translation
-        try {
-            const response = await fetch(`${API_BASE_URL}/reaction_roles`);
-            const data = await response.json();
-
-            if (response.ok) {
-                currentReactionRolesList.innerHTML = ''; // Clear loading message
-                if (data.length === 0) {
-                    currentReactionRolesList.innerHTML = '<p>설정된 리액션 역할이 없습니다.</p>'; // Korean translation
-                    return;
-                }
-                const ul = document.createElement('ul');
-                data.forEach(role => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <strong>길드 ID:</strong> ${role.guild_id} <br>
-                        <strong>채널 ID:</strong> ${role.channel_id} <br>
-                        <strong>메시지 ID:</strong> ${role.message_id} <br>
-                        <strong>이모지:</strong> ${role.emoji} <br>
-                        <strong>역할 ID:</strong> ${role.role_id}
-                    `; // Korean translation
-                    ul.appendChild(li);
-                });
-                currentReactionRolesList.appendChild(ul);
-            } else {
-                console.error('Failed to fetch reaction roles:', data.error);
-                currentReactionRolesList.innerHTML = `<p class="error">리액션 역할을 가져오는 중 오류 발생: ${data.error || '알 수 없는 오류'}</p>`; // Korean translation
-            }
-        } catch (error) {
-            console.error('Network error fetching reaction roles:', error);
-            currentReactionRolesList.innerHTML = '<p class="error">리액션 역할을 가져오는 중 네트워크 오류가 발생했습니다.</p>'; // Korean translation
-        }
-    }
-
-
     // --- Initialization ---
     // Initial fetches for live data
     fetchBotStatus();
     fetchCommandUsageStats();
     fetchLogs();
     fetchBotConfig();
-    fetchReactionRoles(); // Fetch reaction roles on initial load
 
     // Set up all event listeners
     setupControlPanelListeners();
     setupAnnouncementSenderListeners();
     setupLogsViewerListeners();
 
-    // Add null check for addReactionRoleBtn here as well
-    if (addReactionRoleBtn) {
-        addReactionRoleBtn.addEventListener('click', handleAddReactionRole); // Add event listener for reaction role button
-    } else {
-        console.warn("Element with ID 'add-reaction-role-btn' not found. Cannot set up event listener.");
-    }
 
 
     // Set intervals for dynamic updates
