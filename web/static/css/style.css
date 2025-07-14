@@ -219,7 +219,7 @@ h3 {
 }
 
 .dashboard-item p {
-    font-size: 2.8rem; /* Significantly larger numbers */
+    font-size: 2rem; /* Significantly larger numbers */
     font-weight: 700;
     color: var(--primary-color);
     margin-top: auto; /* Push content to bottom for flex alignment */
