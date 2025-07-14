@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandUsageChartCtx = commandUsageChartElement ? commandUsageChartElement.getContext('2d') : null;
     const topCommandsList = document.getElementById('top-commands-list');
     let commandUsageChart;
+    let logFetchIntervalId;
 
     // --- Logs Viewer Elements ---
     const logOutput = document.getElementById('log-output');
@@ -471,13 +472,16 @@ function setupLogsViewerListeners() {
     if (clearLogsBtn) {
         clearLogsBtn.addEventListener('click', () => {
             if (logOutput) logOutput.innerHTML = '';
-            // FIX: Clear the allLogEntries array as well
             allLogEntries = [];
+
+            // Stop the log fetching interval so logs don't reappear automatically
+            if (logFetchIntervalId) {
+                clearInterval(logFetchIntervalId);
+                logFetchIntervalId = null; // Reset the ID
+            }
+
             if (controlStatusMessage) showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info');
-            // Re-render logs immediately to reflect the cleared state
-            // This might not be strictly necessary if allLogEntries is empty,
-            // but ensures consistency.
-            renderLogs();
+            renderLogs(); // Re-render to ensure the display is truly empty
         });
     }
 
@@ -578,8 +582,8 @@ function setupLogsViewerListeners() {
     // Set intervals for dynamic updates (these run regardless of active tab for continuous data)
     setInterval(fetchBotStatus, 5000);
     setInterval(fetchCommandUsageStats, 10000);
-    setInterval(fetchLogs, 3000);
-    setInterval(fetchServerInfo, 15000); // Fetch server info every 15 seconds
+    logFetchIntervalId = setInterval(fetchLogs, 3000); // Store the ID here!
+    setInterval(fetchServerInfo, 15000);
     // No interval for fetchBotConfig as config typically doesn't change frequently.
 
     const simulateButtons = document.querySelectorAll('.simulate-log-btn');
