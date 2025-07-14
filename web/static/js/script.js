@@ -669,8 +669,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Set intervals for dynamic updates
-    setInterval(fetchBotStatus, 5000); // Fetch dashboard stats every 5 seconds
-    setInterval(fetchCommandUsageStats, 10000); // Fetch command stats every 10 seconds
-    setInterval(fetchLogs, 3000); // Fetch logs every 3 seconds for near real-time updates
-    // setInterval(fetchReactionRoles, 30000); // Optional: Refresh reaction roles every 30 seconds
+    setInterval(fetchBotStatus, 5000);
+    setInterval(fetchCommandUsageStats, 10000);
+    setInterval(fetchLogs, 3000);
+    setInterval(fetchBotConfig, 30000);
+    setInterval(fetchServerInfo, 30000);
 });
