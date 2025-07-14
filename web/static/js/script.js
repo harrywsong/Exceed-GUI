@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const announcementStatusMessage = document.getElementById('announcement-status-message');
 
     // --- Command Usage Stats Elements ---
-    const commandUsageChartCtx = document.getElementById('commandUsageChart').getContext('2d');
+    const commandUsageChartElement = document.getElementById('commandUsageChart'); // Get the canvas element
+    const commandUsageChartCtx = commandUsageChartElement ? commandUsageChartElement.getContext('2d') : null; // Get context only if element exists
     const topCommandsList = document.getElementById('top-commands-list');
     let commandUsageChart; // To hold the Chart.js instance
 
@@ -61,13 +62,17 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {'success'|'error'|'info'} type - The type of message for styling.
      */
     function showMessage(messageElement, message, type) {
-        messageElement.textContent = message;
-        messageElement.className = `message show ${type}`; // Apply classes
-        setTimeout(() => {
-            messageElement.classList.remove('show'); // Fade out
-            // Optionally clear text after fade out for cleaner re-display
-            setTimeout(() => messageElement.textContent = '', 300);
-        }, 3000); // Message visible for 3 seconds
+        if (messageElement) { // Add null check
+            messageElement.textContent = message;
+            messageElement.className = `message show ${type}`; // Apply classes
+            setTimeout(() => {
+                messageElement.classList.remove('show'); // Fade out
+                // Optionally clear text after fade out for cleaner re-display
+                setTimeout(() => messageElement.textContent = '', 300);
+            }, 3000); // Message visible for 3 seconds
+        } else {
+            console.warn(`Attempted to show message "${message}" but message element was null.`);
+        }
     }
 
     // --- Dashboard Functions ---
@@ -80,33 +85,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) { // Check response.ok for HTTP status 200-299
-                statusIndicator.textContent = data.status;
-                statusIndicator.className = `status-indicator ${data.status.toLowerCase()}`;
-                uptimeElement.textContent = data.uptime;
-                latencyElement.textContent = `${data.latency_ms} ms`;
+                if (statusIndicator) statusIndicator.textContent = data.status;
+                if (statusIndicator) statusIndicator.className = `status-indicator ${data.status.toLowerCase()}`;
+                if (uptimeElement) uptimeElement.textContent = data.uptime;
+                if (latencyElement) latencyElement.textContent = `${data.latency_ms} ms`;
                 // commandsTodayElement.textContent is now updated by fetchCommandUsageStats
-                activeUsersElement.textContent = data.user_count;
-                serverCountElement.textContent = data.guild_count;
+                if (activeUsersElement) activeUsersElement.textContent = data.user_count;
+                if (serverCountElement) serverCountElement.textContent = data.guild_count;
             } else {
                 console.error('Failed to fetch bot status:', data.error);
-                statusIndicator.textContent = 'Error';
-                statusIndicator.className = 'status-indicator error';
+                if (statusIndicator) statusIndicator.textContent = 'Error';
+                if (statusIndicator) statusIndicator.className = 'status-indicator error';
                 // Clear other fields or set to error state
-                uptimeElement.textContent = 'N/A';
-                latencyElement.textContent = 'N/A';
-                commandsTodayElement.textContent = 'N/A';
-                activeUsersElement.textContent = 'N/A';
-                serverCountElement.textContent = 'N/A';
+                if (uptimeElement) uptimeElement.textContent = 'N/A';
+                if (latencyElement) latencyElement.textContent = 'N/A';
+                if (commandsTodayElement) commandsTodayElement.textContent = 'N/A';
+                if (activeUsersElement) activeUsersElement.textContent = 'N/A';
+                if (serverCountElement) serverCountElement.textContent = 'N/A';
             }
         } catch (error) {
             console.error('Network error fetching bot status:', error);
-            statusIndicator.textContent = 'Offline (API Error)';
-            statusIndicator.className = 'status-indicator offline';
-            uptimeElement.textContent = 'N/A';
-            latencyElement.textContent = 'N/A';
-            commandsTodayElement.textContent = 'N/A';
-            activeUsersElement.textContent = 'N/A';
-            serverCountElement.textContent = 'N/A';
+            if (statusIndicator) statusIndicator.textContent = 'Offline (API Error)';
+            if (statusIndicator) statusIndicator.className = 'status-indicator offline';
+            if (uptimeElement) uptimeElement.textContent = 'N/A';
+            if (latencyElement) latencyElement.textContent = 'N/A';
+            if (commandsTodayElement) commandsTodayElement.textContent = 'N/A';
+            if (activeUsersElement) activeUsersElement.textContent = 'N/A';
+            if (serverCountElement) serverCountElement.textContent = 'N/A';
         }
     }
 
@@ -120,11 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendControlAction(action, actionName, messageElement) { // Changed parameter from endpoint to action
         showMessage(messageElement, `${actionName.toLowerCase()} 시도 중...`, 'info'); // Korean translation
         // Disable buttons during action
-        restartBotBtn.disabled = true;
-        reloadCogsBtn.disabled = true;
-        updateGitBtn.disabled = true;
-        sendAnnouncementBtn.disabled = true;
-        addReactionRoleBtn.disabled = true; // Disable reaction role button during control actions
+        if (restartBotBtn) restartBotBtn.disabled = true;
+        if (reloadCogsBtn) reloadCogsBtn.disabled = true;
+        if (updateGitBtn) updateGitBtn.disabled = true;
+        if (sendAnnouncementBtn) sendAnnouncementBtn.disabled = true;
+        if (addReactionRoleBtn) addReactionRoleBtn.disabled = true; // Disable reaction role button during control actions
 
         try {
             const response = await fetch(`${API_BASE_URL}/control_bot`, { // Changed endpoint
@@ -148,15 +153,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(`${actionName} API error:`, data.error);
             }
         } catch (error) {
-            showMessage(messageElement, `${actionName.toLowerCase()} 중 네트워크 오류: ${error.message}`, 'error'); // Korean translation
+            showMessage(messageElement, `Network error during ${actionName.toLowerCase()}: ${error.message}`, 'error'); // Korean translation
             console.error(`Network error for ${actionName}:`, error);
         } finally {
             // Re-enable buttons
-            restartBotBtn.disabled = false;
-            reloadCogsBtn.disabled = false;
-            updateGitBtn.disabled = false;
-            sendAnnouncementBtn.disabled = false;
-            addReactionRoleBtn.disabled = false; // Re-enable reaction role button
+            if (restartBotBtn) restartBotBtn.disabled = false;
+            if (reloadCogsBtn) reloadCogsBtn.disabled = false;
+            if (updateGitBtn) updateGitBtn.disabled = false;
+            if (sendAnnouncementBtn) sendAnnouncementBtn.disabled = false;
+            if (addReactionRoleBtn) addReactionRoleBtn.disabled = false; // Re-enable reaction role button
         }
     }
 
@@ -164,9 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Sets up event listeners for bot control buttons.
      */
     function setupControlPanelListeners() {
-        restartBotBtn.addEventListener('click', () => sendControlAction('restart', '봇 재시작', controlStatusMessage)); // Korean translation
-        reloadCogsBtn.addEventListener('click', () => sendControlAction('reload_cogs', 'Cog 재로드', controlStatusMessage)); // Korean translation
-        updateGitBtn.addEventListener('click', () => sendControlAction('update_git', 'Git에서 업데이트', controlStatusMessage)); // Korean translation
+        if (restartBotBtn) restartBotBtn.addEventListener('click', () => sendControlAction('restart', '봇 재시작', controlStatusMessage)); // Korean translation
+        if (reloadCogsBtn) reloadCogsBtn.addEventListener('click', () => sendControlAction('reload_cogs', 'Cog 재로드', controlStatusMessage)); // Korean translation
+        if (updateGitBtn) updateGitBtn.addEventListener('click', () => sendControlAction('update_git', 'Git에서 업데이트', controlStatusMessage)); // Korean translation
     }
 
     // --- Send Announcement Functions ---
@@ -174,6 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
      * Handles sending an announcement via the backend API.
      */
     async function handleSendAnnouncement() {
+        if (!announcementMessageInput || !announcementChannelInput || !sendAnnouncementBtn || !announcementStatusMessage) {
+            console.warn("Missing announcement elements. Cannot send announcement.");
+            return;
+        }
+
         const message = announcementMessageInput.value.trim();
         const channelId = announcementChannelInput.value.trim();
 
@@ -211,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(announcementStatusMessage, `공지 전송 중 네트워크 오류: ${error.message}`, 'error'); // Korean translation
             console.error('Network error for announcement:', error);
         } finally {
-            sendAnnouncementBtn.disabled = false; // Re-enable button
+            if (sendAnnouncementBtn) sendAnnouncementBtn.disabled = false; // Re-enable button
         }
     }
 
@@ -219,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Sets up event listeners for the announcement sender.
      */
     function setupAnnouncementSenderListeners() {
-        sendAnnouncementBtn.addEventListener('click', handleSendAnnouncement);
+        if (sendAnnouncementBtn) sendAnnouncementBtn.addEventListener('click', handleSendAnnouncement);
     }
 
     // --- Command Usage Stats Functions ---
@@ -238,36 +248,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Update the "Commands Used Today" in the dashboard overview
                 const totalCommands = dataValues.reduce((sum, count) => sum + count, 0);
-                commandsTodayElement.textContent = totalCommands;
+                if (commandsTodayElement) commandsTodayElement.textContent = totalCommands;
 
-                if (commandUsageChart) {
-                    commandUsageChart.data.labels = labels;
-                    commandUsageChart.data.datasets[0].data = dataValues;
-                    commandUsageChart.update();
+                if (commandUsageChartElement && commandUsageChartCtx) { // Check if chart elements exist
+                    if (commandUsageChart) {
+                        commandUsageChart.data.labels = labels;
+                        commandUsageChart.data.datasets[0].data = dataValues;
+                        commandUsageChart.update();
+                    } else {
+                        initCommandUsageChart(labels, dataValues);
+                    }
                 } else {
-                    initCommandUsageChart(labels, dataValues);
+                    console.warn("Chart elements not found. Cannot display command usage chart.");
                 }
                 updateTopCommandsList(commandStats);
             } else {
                 console.error('Failed to fetch command stats:', data.error);
-                commandsTodayElement.textContent = '오류'; // Korean translation
+                if (commandsTodayElement) commandsTodayElement.textContent = '오류'; // Korean translation
                 // Clear chart and list or show error
                 if (commandUsageChart) {
                     commandUsageChart.data.labels = [];
                     commandUsageChart.data.datasets[0].data = [];
                     commandUsageChart.update();
                 }
-                topCommandsList.innerHTML = '<li>명령어 통계를 가져오는 중 오류가 발생했습니다.</li>'; // Korean translation
+                if (topCommandsList) topCommandsList.innerHTML = '<li>명령어 통계를 가져오는 중 오류가 발생했습니다.</li>'; // Korean translation
             }
         } catch (error) {
             console.error('Network error fetching command stats:', error);
-            commandsTodayElement.textContent = 'N/A';
+            if (commandsTodayElement) commandsTodayElement.textContent = 'N/A';
             if (commandUsageChart) {
                 commandUsageChart.data.labels = [];
                 commandUsageChart.data.datasets[0].data = [];
                 commandUsageChart.update();
             }
-            topCommandsList.innerHTML = '<li>명령어 통계를 가져오는 중 네트워크 오류가 발생했습니다.</li>'; // Korean translation
+            if (topCommandsList) topCommandsList.innerHTML = '<li>명령어 통계를 가져오는 중 네트워크 오류가 발생했습니다.</li>'; // Korean translation
         }
     }
 
@@ -277,6 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {number[]} dataValues - Array of usage counts.
      */
     function initCommandUsageChart(labels, dataValues) {
+        if (!commandUsageChartCtx) { // Ensure context exists before initializing
+            console.error("Chart context not found. Cannot initialize command usage chart.");
+            return;
+        }
         commandUsageChart = new Chart(commandUsageChartCtx, {
             type: 'bar',
             data: {
@@ -348,6 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Array<Object>} commandStats - Array of command stat objects {command_name: string, usage_count: number}.
      */
     function updateTopCommandsList(commandStats) {
+        if (!topCommandsList) { // Add null check
+            console.warn("Top commands list element not found. Cannot update list.");
+            return;
+        }
         topCommandsList.innerHTML = ''; // Clear existing list
 
         commandStats.forEach(stat => {
@@ -400,11 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderLogs();
             } else {
                 console.error('Failed to fetch logs:', data.error);
-                logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 오류가 발생했습니다.</p>'; // Korean translation
+                if (logOutput) logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 오류가 발생했습니다.</p>'; // Korean translation
             }
         } catch (error) {
             console.error('Network error fetching logs:', error);
-            logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 네트워크 오류가 발생했습니다.</p>'; // Korean translation
+            if (logOutput) logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 네트워크 오류가 발생했습니다.</p>'; // Korean translation
         }
     }
 
@@ -412,10 +434,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * Renders log entries to the log output area based on current filters.
      */
     function renderLogs() {
+        if (!logOutput) { // Add null check
+            console.warn("Log output element not found. Cannot render logs.");
+            return;
+        }
         logOutput.innerHTML = ''; // Clear current logs
 
-        const filterText = logFilterInput.value.toLowerCase();
-        const filterLevel = logLevelFilterSelect.value;
+        const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : ''); // Add null check
+        const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value : 'all'); // Add null check
 
         const filteredLogs = allLogEntries.filter(entry => {
             // Filter out 'werkzeug' logs
@@ -447,29 +473,33 @@ document.addEventListener('DOMContentLoaded', () => {
      * Sets up event listeners for the logs viewer controls.
      */
     function setupLogsViewerListeners() {
-        logFilterInput.addEventListener('input', renderLogs);
-        logLevelFilterSelect.addEventListener('change', renderLogs);
+        if (logFilterInput) logFilterInput.addEventListener('input', renderLogs);
+        if (logLevelFilterSelect) logLevelFilterSelect.addEventListener('change', renderLogs);
 
-        clearLogsBtn.addEventListener('click', () => {
-            logOutput.innerHTML = ''; // Clear display
-            // Note: This only clears the view, not the `allLogEntries` array
-            // If you want to clear all data, you'd need a backend endpoint to truncate the log file.
-            showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info'); // Korean translation
-        });
+        if (clearLogsBtn) { // Add null check
+            clearLogsBtn.addEventListener('click', () => {
+                if (logOutput) logOutput.innerHTML = ''; // Clear display
+                // Note: This only clears the view, not the `allLogEntries` array
+                // If you want to clear all data, you'd need a backend endpoint to truncate the log file.
+                if (controlStatusMessage) showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info'); // Korean translation
+            });
+        }
 
-        downloadLogsBtn.addEventListener('click', () => {
-            const logContent = allLogEntries.map(entry => `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`).join('\n');
-            const blob = new Blob([logContent], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `discord_bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url); // Clean up
-            showMessage(controlStatusMessage, '로그가 성공적으로 다운로드되었습니다.', 'success'); // Korean translation
-        });
+        if (downloadLogsBtn) { // Add null check
+            downloadLogsBtn.addEventListener('click', () => {
+                const logContent = allLogEntries.map(entry => `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`).join('\n');
+                const blob = new Blob([logContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `discord_bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // Clean up
+                if (controlStatusMessage) showMessage(controlStatusMessage, '로그가 성공적으로 다운로드되었습니다.', 'success'); // Korean translation
+            });
+        }
     }
 
     // --- Configuration Viewer Functions ---
@@ -482,25 +512,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
-                configOutput.innerHTML = ''; // Clear loading message
-                if (Object.keys(data.config).length === 0) {
+                if (configOutput) configOutput.innerHTML = ''; // Clear loading message
+                if (configOutput && Object.keys(data.config).length === 0) {
                     configOutput.innerHTML = '<p>표시할 설정 변수가 없습니다.</p>'; // Korean translation
                     return;
                 }
-                const ul = document.createElement('ul');
-                for (const [key, value] of Object.entries(data.config)) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<span>${key}:</span> <span>${value}</span>`;
-                    ul.appendChild(li);
+                if (configOutput) { // Add null check
+                    const ul = document.createElement('ul');
+                    for (const [key, value] of Object.entries(data.config)) {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span>${key}:</span> <span>${value}</span>`;
+                        ul.appendChild(li);
+                    }
+                    configOutput.appendChild(ul);
                 }
-                configOutput.appendChild(ul);
             } else {
                 console.error('Failed to fetch bot config:', data.error);
-                configOutput.innerHTML = `<p class="error">설정을 가져오는 중 오류 발생: ${data.error || '알 수 없는 오류'}</p>`; // Korean translation
+                if (configOutput) configOutput.innerHTML = `<p class="error">설정을 가져오는 중 오류 발생: ${data.error || '알 수 없는 오류'}</p>`; // Korean translation
             }
         } catch (error) {
             console.error('Network error fetching bot config:', error);
-            configOutput.innerHTML = '<p class="error">설정을 가져오는 중 네트워크 오류가 발생했습니다.</p>'; // Korean translation
+            if (configOutput) configOutput.innerHTML = '<p class="error">설정을 가져오는 중 네트워크 오류가 발생했습니다.</p>'; // Korean translation
         }
     }
 
@@ -509,6 +541,12 @@ document.addEventListener('DOMContentLoaded', () => {
      * Handles adding a new reaction role.
      */
     async function handleAddReactionRole() {
+        // Add null checks for all input elements
+        if (!rrGuildIdInput || !rrChannelIdInput || !rrMessageIdInput || !rrEmojiInput || !rrRoleIdInput || !addReactionRoleBtn || !reactionRoleStatusMessage) {
+            console.warn("Missing one or more reaction role input/button/status elements. Cannot add reaction role.");
+            return;
+        }
+
         const guildId = rrGuildIdInput.value.trim();
         const channelId = rrChannelIdInput.value.trim();
         const messageId = rrMessageIdInput.value.trim();
@@ -561,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(reactionRoleStatusMessage, `리액션 역할 추가 중 네트워크 오류: ${error.message}`, 'error'); // Korean translation
             console.error('Network error adding reaction role:', error);
         } finally {
-            addReactionRoleBtn.disabled = false;
+            if (addReactionRoleBtn) addReactionRoleBtn.disabled = false;
         }
     }
 
@@ -569,6 +607,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * Fetches and displays the current reaction roles.
      */
     async function fetchReactionRoles() {
+        if (!currentReactionRolesList) { // Crucial null check at the beginning
+            console.warn("Element with ID 'current-reaction-roles-list' not found. Cannot fetch or display reaction roles.");
+            return;
+        }
         currentReactionRolesList.innerHTML = '<p>현재 리액션 역할 로딩 중...</p>'; // Korean translation
         try {
             const response = await fetch(`${API_BASE_URL}/reaction_roles`);
@@ -616,7 +658,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupControlPanelListeners();
     setupAnnouncementSenderListeners();
     setupLogsViewerListeners();
-    addReactionRoleBtn.addEventListener('click', handleAddReactionRole); // Add event listener for reaction role button
+
+    // Add null check for addReactionRoleBtn here as well
+    if (addReactionRoleBtn) {
+        addReactionRoleBtn.addEventListener('click', handleAddReactionRole); // Add event listener for reaction role button
+    } else {
+        console.warn("Element with ID 'add-reaction-role-btn' not found. Cannot set up event listener.");
+    }
 
 
     // Set intervals for dynamic updates
