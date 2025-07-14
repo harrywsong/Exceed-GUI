@@ -102,11 +102,38 @@
             </div>
         </div>
 
-        <!-- 리액션 역할 편집기 (플레이스홀더 - 복잡한 UI) -->
+        <!-- 리액션 역할 편집기 섹션 -->
         <div class="card reaction-roles">
-            <h2><i class="fas fa-hand-pointer"></i> 리액션 역할 편집기 (고급)</h2>
-            <p>이 섹션은 리액션 역할을 설정하기 위한 시각적 편집기를 제공합니다.</p>
-            <button disabled>리액션 역할 관리 (출시 예정)</button>
+            <h2><i class="fas fa-hand-pointer"></i> 리액션 역할 편집기</h2>
+            <p>메시지에 리액션을 추가하여 역할을 부여하는 기능을 설정합니다.</p>
+
+            <div class="form-group">
+                <label for="rr-guild-id">길드 ID:</label>
+                <input type="text" id="rr-guild-id" placeholder="길드 ID 입력 (예: 123...)">
+            </div>
+            <div class="form-group">
+                <label for="rr-channel-id">채널 ID:</label>
+                <input type="text" id="rr-channel-id" placeholder="채널 ID 입력 (예: 123...)">
+            </div>
+            <div class="form-group">
+                <label for="rr-message-id">메시지 ID:</label>
+                <input type="text" id="rr-message-id" placeholder="메시지 ID 입력 (예: 123...)">
+            </div>
+            <div class="form-group">
+                <label for="rr-emoji">이모지:</label>
+                <input type="text" id="rr-emoji" placeholder="이모지 입력 (예: 👍 또는 <:custom:123...>)">
+            </div>
+            <div class="form-group">
+                <label for="rr-role-id">역할 ID:</label>
+                <input type="text" id="rr-role-id" placeholder="역할 ID 입력 (예: 123...)">
+            </div>
+            <button id="add-reaction-role-btn"><i class="fas fa-plus-circle"></i> 리액션 역할 추가</button>
+            <p id="reaction-role-status-message" class="message"></p>
+
+            <h3 style="margin-top: 20px;">현재 리액션 역할</h3>
+            <ul id="current-reaction-roles-list" class="config-list">
+                <p>로딩 중...</p>
+            </ul>
         </div>
 
     </div>
