@@ -454,36 +454,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // New function to add a single log entry to the display and array
     function addLogEntry(entry) {
-        // Apply current filters to the new entry before adding to display
-        const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : '');
-        const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all');
+    // Apply current filters to the new entry before adding to display
+    const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : '');
+    const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all');
 
-        const matchesText = (entry.message && entry.message.toLowerCase().includes(filterText)) ||
-                            (entry.timestamp && entry.timestamp.toLowerCase().includes(filterText)) ||
-                            (entry.level && entry.level.toLowerCase().includes(filterText)) ||
-                            (entry.logger_name && entry.logger_name.toLowerCase().includes(filterText));
+    const matchesText = (entry.message && entry.message.toLowerCase().includes(filterText)) ||
+                        (entry.timestamp && entry.timestamp.toLowerCase().includes(filterText)) ||
+                        (entry.level && entry.level.toLowerCase().includes(filterText)) ||
+                        (entry.logger_name && entry.logger_name.toLowerCase().includes(filterText));
 
-        const matchesLevel = filterLevel === 'all' || (entry.level && entry.level.toLowerCase() === filterLevel);
+    const matchesLevel = filterLevel === 'all' || (entry.level && entry.level.toLowerCase() === filterLevel);
 
-        if (matchesText && matchesLevel) {
-            // Add the new entry to the allLogEntries array
-            allLogEntries.push(entry);
+    // Always add the entry to the allLogEntries array, regardless of current filters
+    // Filters are applied by renderLogs()
+    // Avoids potential duplicates if the same log comes from both simulation and fetch
+    // if (!allLogEntries.some(existingEntry =>
+    //     existingEntry.timestamp === entry.timestamp &&
+    //     existingEntry.level === entry.level &&
+    //     existingEntry.message === entry.message
+    // )) {
+        allLogEntries.push(entry);
+    // }
 
-            // Create and append the new paragraph element for the log
-            const p = document.createElement('p');
-            const logSourceName = entry.logger_name || 'UNKNOWN';
-            const logLevel = entry.level || 'UNKNOWN';
-            const logTimestamp = entry.timestamp || 'N/A';
-            const logMessage = entry.message || '';
+    // Instead of directly appending, call renderLogs() to refresh the entire display
+    // This ensures consistency with filtering and the "clean slate" behavior
+    renderLogs();
 
-            p.className = `log-entry ${logLevel.toLowerCase()}`;
-            p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
-            logOutput.appendChild(p);
+    // The original direct DOM append logic is removed from here:
+    // if (matchesText && matchesLevel) {
+    //     const p = document.createElement('p');
+    //     const logSourceName = entry.logger_name || 'UNKNOWN';
+    //     const logLevel = entry.level || 'UNKNOWN';
+    //     const logTimestamp = entry.timestamp || 'N/A';
+    //     const logMessage = entry.message || '';
 
-            // Scroll to the bottom
-            logOutput.scrollTop = logOutput.scrollHeight;
-        }
-    }
+    //     p.className = `log-entry ${logLevel.toLowerCase()}`;
+    //     p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
+    //     logOutput.appendChild(p);
+
+    //     // Scroll to the bottom
+    //     logOutput.scrollTop = logOutput.scrollHeight;
+    // }
+}
 
 
     function renderLogs() {
