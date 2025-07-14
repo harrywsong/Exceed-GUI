@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandUsageChartCtx = commandUsageChartElement ? commandUsageChartElement.getContext('2d') : null;
     const topCommandsList = document.getElementById('top-commands-list');
     let commandUsageChart;
-    let logFetchIntervalId;
 
     // --- Logs Viewer Elements ---
     const logOutput = document.getElementById('log-output');
@@ -40,7 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const logLevelFilterSelect = document.getElementById('log-level-filter');
     const clearLogsBtn = document.getElementById('clear-logs-btn');
     const downloadLogsBtn = document.getElementById('download-logs-btn');
+
+    // Global variable to hold all currently displayed log entries
+    // This will now only contain logs added after a clear or initial fetch
     let allLogEntries = [];
+    // Variable to hold the log fetching interval ID
+    let logFetchIntervalId;
+
+    // Interval IDs for other dashboard components (optional, but good practice for cleanup)
+    let botStatusIntervalId;
+    let commandStatsIntervalId;
+    let serverInfoIntervalId;
 
     // --- Configuration Viewer Elements ---
     const configOutput = document.getElementById('config-output');
@@ -173,8 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage(messageElement, `${actionName} 성공! ${data.message || ''}`, 'success');
                 fetchBotStatus();
                 fetchCommandUsageStats();
-                fetchLogs();
-                fetchServerInfo(); // Refresh server info as bot restart might affect it
+                // When bot is controlled, fetch ALL logs to update state
+                fetchAllHistoricalLogs();
+                fetchServerInfo();
             } else {
                 showMessage(messageElement, `${actionName} 실패: ${data.error || '알 수 없는 오류'}`, 'error');
                 console.error(`${actionName} API error:`, data.error);
@@ -231,7 +241,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok && data.success) {
                 showMessage(announcementStatusMessage, `공지 전송 성공! ${data.message || ''}`, 'success');
                 announcementMessageInput.value = '';
-                fetchLogs();
+                // When announcement is sent, fetch ALL logs to update state
+                fetchAllHistoricalLogs();
             } else {
                 showMessage(announcementStatusMessage, `공지 전송 실패: ${data.error || '알 수 없는 오류'}`, 'error');
                 console.error('Announcement API error:', data.error);
@@ -382,22 +393,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Logs Viewer Functions ---
-    async function fetchLogs() {
+
+    // New function to fetch all historical logs (used on initial load or full refresh)
+    async function fetchAllHistoricalLogs() {
         try {
             const response = await fetch(`${API_BASE_URL}/logs`);
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
-                // *** IMPORTANT CHANGE HERE ***
-                // Directly assign the structured logs received from the API.
-                // The Python backend is now sending already parsed and filtered log objects.
-                allLogEntries = data.logs;
-
-                // Debugging (optional): Log the structure of a log entry to confirm
-                // if (allLogEntries.length > 0) {
-                //     console.log("Received structured log entry example:", allLogEntries[0]);
-                // }
-
+                allLogEntries = data.logs; // Overwrite with all historical logs
                 renderLogs();
             } else {
                 console.error('Failed to fetch logs:', data.error);
@@ -408,7 +412,42 @@ document.addEventListener('DOMContentLoaded', () => {
             if (logOutput) logOutput.innerHTML = '<p class="log-entry error">로그를 가져오는 중 네트워크 오류가 발생했습니다.</p>';
         }
     }
-function renderLogs() {
+
+    // New function to add a single log entry to the display and array
+    function addLogEntry(entry) {
+        // Apply current filters to the new entry before adding to display
+        const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : '');
+        const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all');
+
+        const matchesText = (entry.message && entry.message.toLowerCase().includes(filterText)) ||
+                            (entry.timestamp && entry.timestamp.toLowerCase().includes(filterText)) ||
+                            (entry.level && entry.level.toLowerCase().includes(filterText)) ||
+                            (entry.logger_name && entry.logger_name.toLowerCase().includes(filterText));
+
+        const matchesLevel = filterLevel === 'all' || (entry.level && entry.level.toLowerCase() === filterLevel);
+
+        if (matchesText && matchesLevel) {
+            // Add the new entry to the allLogEntries array
+            allLogEntries.push(entry);
+
+            // Create and append the new paragraph element for the log
+            const p = document.createElement('p');
+            const logSourceName = entry.logger_name || 'UNKNOWN';
+            const logLevel = entry.level || 'UNKNOWN';
+            const logTimestamp = entry.timestamp || 'N/A';
+            const logMessage = entry.message || '';
+
+            p.className = `log-entry ${logLevel.toLowerCase()}`;
+            p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
+            logOutput.appendChild(p);
+
+            // Scroll to the bottom
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+    }
+
+
+    function renderLogs() {
         if (!logOutput) {
             console.warn("Log output element not found. Cannot render logs.");
             return;
@@ -416,34 +455,23 @@ function renderLogs() {
         logOutput.innerHTML = '';
 
         const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : '');
-        const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all'); // Ensure filterLevel is lowercase
+        const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all');
 
         const filteredLogs = allLogEntries.filter(entry => {
-            // Your Python API already filters out 'werkzeug' or formats them.
-            // If you still want to explicitly filter on client, ensure 'logger_name' or 'name' is checked.
-            // Based on your bot.py, the parsed entries have 'logger_name'.
-            if (entry.logger_name && entry.logger_name.toLowerCase() === 'werkzeug') { // Check the correct field
+            if (entry.logger_name && entry.logger_name.toLowerCase() === 'werkzeug') {
                  return false;
             }
-            // You also had "RAW" level for unparsed lines, consider how you want to handle those.
             if (entry.level && entry.level.toLowerCase() === 'raw') {
-                // Decide if you want to display raw logs or not
-                // For now, let's include them if no specific level filter is applied,
-                // or if the filter explicitly asks for "RAW" (though typically not a real log level)
                 if (filterLevel === 'all' || filterLevel === 'raw') {
-                    // Raw logs should still match the text filter on their message
                     return entry.message.toLowerCase().includes(filterText);
                 }
-                return false; // Otherwise, hide raw logs if a specific level filter is active
+                return false;
             }
 
-
-            // All properties (timestamp, level, logger_name, message) are now guaranteed to be strings
-            // because they were converted to strings in the Python backend.
             const matchesText = (entry.message && entry.message.toLowerCase().includes(filterText)) ||
                                 (entry.timestamp && entry.timestamp.toLowerCase().includes(filterText)) ||
                                 (entry.level && entry.level.toLowerCase().includes(filterText)) ||
-                                (entry.logger_name && entry.logger_name.toLowerCase().includes(filterText)); // Check logger_name, not 'name'
+                                (entry.logger_name && entry.logger_name.toLowerCase().includes(filterText));
 
             const matchesLevel = filterLevel === 'all' || (entry.level && entry.level.toLowerCase() === filterLevel);
             return matchesText && matchesLevel;
@@ -451,11 +479,10 @@ function renderLogs() {
 
         filteredLogs.forEach(entry => {
             const p = document.createElement('p');
-            // Use entry.logger_name for the log source
-            const logSourceName = entry.logger_name || 'UNKNOWN'; // Fallback for safety
-            const logLevel = entry.level || 'UNKNOWN'; // Fallback for safety
-            const logTimestamp = entry.timestamp || 'N/A'; // Fallback for safety
-            const logMessage = entry.message || ''; // Fallback for safety
+            const logSourceName = entry.logger_name || 'UNKNOWN';
+            const logLevel = entry.level || 'UNKNOWN';
+            const logTimestamp = entry.timestamp || 'N/A';
+            const logMessage = entry.message || '';
 
             p.className = `log-entry ${logLevel.toLowerCase()}`;
             p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
@@ -465,42 +492,42 @@ function renderLogs() {
         logOutput.scrollTop = logOutput.scrollHeight;
     }
 
-function setupLogsViewerListeners() {
-    if (logFilterInput) logFilterInput.addEventListener('input', renderLogs);
-    if (logLevelFilterSelect) logLevelFilterSelect.addEventListener('change', renderLogs);
+    function setupLogsViewerListeners() {
+        if (logFilterInput) logFilterInput.addEventListener('input', renderLogs);
+        if (logLevelFilterSelect) logLevelFilterSelect.addEventListener('change', renderLogs);
 
-    if (clearLogsBtn) {
-        clearLogsBtn.addEventListener('click', () => {
-            if (logOutput) logOutput.innerHTML = '';
-            allLogEntries = [];
+        if (clearLogsBtn) {
+            clearLogsBtn.addEventListener('click', () => {
+                if (logOutput) logOutput.innerHTML = '';
+                allLogEntries = []; // Clear the in-memory array
 
-            // Stop the log fetching interval so logs don't reappear automatically
-            if (logFetchIntervalId) {
-                clearInterval(logFetchIntervalId);
-                logFetchIntervalId = null; // Reset the ID
-            }
+                // Stop the automatic log fetching interval
+                if (logFetchIntervalId) {
+                    clearInterval(logFetchIntervalId);
+                    logFetchIntervalId = null;
+                }
+                if (controlStatusMessage) showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info');
+                renderLogs(); // Render empty logs to confirm visual clear
+            });
+        }
 
-            if (controlStatusMessage) showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info');
-            renderLogs(); // Re-render to ensure the display is truly empty
-        });
+        if (downloadLogsBtn) {
+            downloadLogsBtn.addEventListener('click', () => {
+                const logContent = allLogEntries.map(entry => `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`).join('\n');
+                const blob = new Blob([logContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `discord_bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                if (controlStatusMessage) showMessage(controlStatusMessage, '로그가 성공적으로 다운로드되었습니다.', 'success');
+            });
+        }
     }
 
-    if (downloadLogsBtn) {
-        downloadLogsBtn.addEventListener('click', () => {
-            const logContent = allLogEntries.map(entry => `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`).join('\n');
-            const blob = new Blob([logContent], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `discord_bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            if (controlStatusMessage) showMessage(controlStatusMessage, '로그가 성공적으로 다운로드되었습니다.', 'success');
-        });
-    }
-}
     // --- Configuration Viewer Functions ---
     async function fetchBotConfig() {
         try {
@@ -551,6 +578,26 @@ function setupLogsViewerListeners() {
         }
     }
 
+    // Helper function to start the log fetching interval
+    function startLogFetchingInterval() {
+        if (!logFetchIntervalId) { // Only start if not already running
+            logFetchIntervalId = setInterval(fetchAllHistoricalLogs, 3000); // Now fetches ALL logs on interval
+        }
+    }
+
+    // Helper function to stop all intervals
+    function stopAllIntervals() {
+        if (logFetchIntervalId) clearInterval(logFetchIntervalId);
+        if (botStatusIntervalId) clearInterval(botStatusIntervalId);
+        if (commandStatsIntervalId) clearInterval(commandStatsIntervalId);
+        if (serverInfoIntervalId) clearInterval(serverInfoIntervalId);
+
+        logFetchIntervalId = null;
+        botStatusIntervalId = null;
+        commandStatsIntervalId = null;
+        serverInfoIntervalId = null;
+    }
+
     // --- Initialization ---
     // Set up all event listeners
     setupControlPanelListeners();
@@ -562,29 +609,43 @@ function setupLogsViewerListeners() {
         button.addEventListener('click', () => {
             const tabId = button.dataset.tab;
             showTab(tabId);
-            // Re-fetch data for the newly active tab if needed
-            if (tabId === 'dashboard-tab') fetchBotStatus();
-            if (tabId === 'server-info-tab') fetchServerInfo();
-            if (tabId === 'command-stats-tab') fetchCommandUsageStats();
-            if (tabId === 'logs-viewer-tab') fetchLogs();
-            if (tabId === 'config-viewer-tab') fetchBotConfig();
-            // Note: Bot Control and Announcement tabs don't require re-fetching data just by switching to them.
+
+            // Re-fetch data for the newly active tab and manage intervals
+            stopAllIntervals(); // Stop all intervals first
+
+            if (tabId === 'dashboard-tab') {
+                fetchBotStatus();
+                botStatusIntervalId = setInterval(fetchBotStatus, 5000);
+            } else if (tabId === 'server-info-tab') {
+                fetchServerInfo();
+                serverInfoIntervalId = setInterval(fetchServerInfo, 15000);
+            } else if (tabId === 'command-stats-tab') {
+                fetchCommandUsageStats();
+                commandStatsIntervalId = setInterval(fetchCommandUsageStats, 10000);
+            } else if (tabId === 'logs-viewer-tab') {
+                // When navigating to logs tab, fetch all historical logs once
+                fetchAllHistoricalLogs();
+                // Then, optionally start an interval to periodically fetch ALL logs again
+                // If you want a "true" fresh slate *only* with new events, you might NOT want this interval
+                // For now, let's keep it but understand it will re-fetch history
+                startLogFetchingInterval();
+            } else if (tabId === 'config-viewer-tab') {
+                fetchBotConfig();
+                // No interval for config viewer
+            }
         });
     });
 
-    // Initial fetches for live data on load (for the initially active tab)
+    // Initial load: Set dashboard as active and fetch its data
+    showTab('dashboard-tab');
     fetchBotStatus();
+    botStatusIntervalId = setInterval(fetchBotStatus, 5000);
+    // Fetch command stats initially (it's part of dashboard view)
     fetchCommandUsageStats();
-    fetchLogs();
-    fetchBotConfig();
-    fetchServerInfo(); // Fetch server info on initial load too
+    commandStatsIntervalId = setInterval(fetchCommandUsageStats, 10000);
+    // Do NOT fetch all historical logs or start their interval on initial load unless on logs tab
+    // The logs tab will handle its own initial fetch when clicked.
 
-    // Set intervals for dynamic updates (these run regardless of active tab for continuous data)
-    setInterval(fetchBotStatus, 5000);
-    setInterval(fetchCommandUsageStats, 10000);
-    logFetchIntervalId = setInterval(fetchLogs, 3000); // Store the ID here!
-    setInterval(fetchServerInfo, 15000);
-    // No interval for fetchBotConfig as config typically doesn't change frequently.
 
     const simulateButtons = document.querySelectorAll('.simulate-log-btn');
 
@@ -594,7 +655,7 @@ function setupLogsViewerListeners() {
             const defaultMessage = `이것은 ${logLevel} 수준의 테스트 로그 메시지입니다.`;
 
             try {
-                const response = await fetch('/api/simulate_log', {
+                const response = await fetch(`${API_BASE_URL}/simulate_log`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -605,8 +666,14 @@ function setupLogsViewerListeners() {
                 const data = await response.json();
                 if (data.status === 'success' || data.status === 'warning') {
                     console.log(`Simulated log: ${data.message}`);
-                    // Optionally, force a log refresh after simulating a log
-                    fetchLogs();
+
+                    // If on the logs viewer tab, display the newly simulated log directly
+                    if (document.getElementById('logs-viewer-tab').classList.contains('active')) {
+                        // The API returns the specific log message that was just simulated
+                        // Add this single log entry to our current display and array
+                        addLogEntry(data.simulated_log_entry); // Assuming your API returns the log entry under 'simulated_log_entry' key
+                    }
+                    // No need to fetchAllHistoricalLogs here, that would bring back old logs
                 } else {
                     console.error('Error simulating log:', data.error);
                 }
