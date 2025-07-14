@@ -31,7 +31,7 @@ body {
     background-color: var(--background-body);
     color: var(--text-color);
     margin: 0;
-    padding: 3rem; /* More padding to use more page space */
+    padding: 1.5rem; /* Reduced padding */
     display: flex;
     justify-content: center;
     align-items: flex-start; /* Align content to the top */
@@ -45,21 +45,21 @@ body {
     background-color: var(--background-container);
     border-radius: var(--border-radius-lg);
     box-shadow: 0 10px 30px var(--shadow-base); /* Deeper, softer shadow for main container */
-    padding: 3.5rem; /* Generous padding inside the container */
+    padding: 2rem; /* Reduced padding inside the container */
     width: 100%;
-    max-width: 1400px; /* Wider max-width for more content */
+    max-width: 1200px; /* Reduced max-width for more content */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 2rem; /* Consistent spacing between main sections */
+    gap: 1.5rem; /* Reduced consistent spacing between main sections */
 }
 
 /* --- Headings --- */
 h1 {
     color: var(--primary-color);
     text-align: center;
-    margin-bottom: 2.5rem; /* Ample space below main heading */
-    font-size: 3rem; /* Larger main title */
+    margin-bottom: 2rem; /* Reduced space below main heading */
+    font-size: 2.5rem; /* Reduced main title size */
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -68,14 +68,14 @@ h1 {
 }
 
 h1 .fab.fa-discord {
-    font-size: 3.5rem; /* Larger Discord icon */
+    font-size: 3rem; /* Reduced Discord icon size */
     vertical-align: middle;
 }
 
 h2 {
     color: var(--text-heading);
-    margin-bottom: 1.8rem;
-    font-size: 2rem;
+    margin-bottom: 1.5rem; /* Reduced margin-bottom */
+    font-size: 1.8rem; /* Reduced font size */
     font-weight: 600;
     border-bottom: 2px solid var(--border-color); /* Subtle separator */
     padding-bottom: 0.8rem;
@@ -112,7 +112,7 @@ h3 {
     background-color: var(--background-card);
     border-radius: var(--border-radius-md);
     box-shadow: 0 4px 12px var(--shadow-base);
-    padding: 2.5rem;
+    padding: 1.8rem; /* Reduced padding */
     transition: transform var(--transition-speed) ease-in-out, box-shadow var(--transition-speed) ease-in-out;
 }
 
@@ -129,17 +129,17 @@ h3 {
     margin-bottom: 2rem;
     background-color: var(--background-body); /* Background similar to body for blend */
     border-radius: var(--border-radius-md);
-    padding: 0.75rem;
+    padding: 0.5rem; /* Reduced padding */
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
 }
 
 .tab-button {
     flex-grow: 1;
-    padding: 1rem 1.5rem;
+    padding: 0.8rem 1.2rem; /* Reduced padding */
     border: none;
     background-color: transparent;
     color: var(--text-color);
-    font-size: 1.05rem;
+    font-size: 1rem; /* Reduced font size */
     font-weight: 600;
     cursor: pointer;
     border-radius: var(--border-radius-sm);
@@ -186,14 +186,14 @@ h3 {
     display: grid;
     /* Responsive grid with minimum item width of 280px */
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.8rem; /* Increased spacing between dashboard items */
+    gap: 1.2rem; /* Reduced spacing between dashboard items */
 }
 
 .dashboard-item {
     background-color: var(--background-card);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    padding: 2rem; /* More padding inside items */
+    padding: 1.5rem; /* Reduced padding inside items */
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all var(--transition-speed) ease;
@@ -201,7 +201,7 @@ h3 {
     flex-direction: column;
     justify-content: space-between; /* Distribute space */
     align-items: center;
-    min-height: 150px; /* Ensure consistent height for items */
+    min-height: 120px; /* Reduced consistent height for items */
 }
 
 .dashboard-item:hover {
@@ -211,7 +211,7 @@ h3 {
 }
 
 .dashboard-item h3 {
-    font-size: 1.25rem; /* Larger heading */
+    font-size: 1.1rem; /* Reduced heading size */
     margin-bottom: 1rem;
     color: var(--secondary-color);
     text-transform: uppercase;
@@ -219,7 +219,7 @@ h3 {
 }
 
 .dashboard-item p {
-    font-size: 2rem; /* Significantly larger numbers */
+    font-size: 1.8rem; /* Reduced significantly larger numbers */
     font-weight: 700;
     color: var(--primary-color);
     margin-top: auto; /* Push content to bottom for flex alignment */
@@ -231,15 +231,15 @@ h3 {
 }
 
 .dashboard-item p i {
-    font-size: 2.5rem; /* Icons match value size */
+    font-size: 2rem; /* Icons match value size */
     color: var(--secondary-color);
 }
 
 .status-indicator {
-    padding: 0.6rem 1.5rem; /* More generous padding */
+    padding: 0.5rem 1.2rem; /* Reduced padding */
     border-radius: 25px; /* Fully pill-shaped */
     font-weight: 600;
-    font-size: 1.2rem; /* Larger text for status */
+    font-size: 1rem; /* Reduced text for status */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -266,7 +266,7 @@ h3 {
     background-color: var(--background-card);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    padding: 1.5rem;
+    padding: 1.2rem; /* Reduced padding */
     display: flex;
     align-items: center;
     gap: 1.2rem;
@@ -281,8 +281,8 @@ h3 {
 }
 
 .guild-icon {
-    width: 70px; /* Larger icons */
-    height: 70px;
+    width: 60px; /* Reduced icon size */
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--primary-color);
@@ -291,15 +291,15 @@ h3 {
 }
 
 .guild-icon-placeholder {
-    width: 70px;
-    height: 70px;
+    width: 60px; /* Reduced icon size */
+    height: 60px;
     border-radius: 50%;
     background-color: var(--primary-color);
     color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.2rem; /* Larger text for placeholder */
+    font-size: 1.8rem; /* Reduced text for placeholder */
     font-weight: 700;
     flex-shrink: 0;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -308,7 +308,7 @@ h3 {
 .guild-details h3 {
     margin-top: 0;
     margin-bottom: 0.5rem;
-    font-size: 1.3rem; /* Larger guild name */
+    font-size: 1.1rem; /* Reduced guild name size */
     color: var(--primary-color);
     white-space: nowrap;
     overflow: hidden;
@@ -340,12 +340,12 @@ h3 {
 
 /* General button styles */
 button {
-    padding: 1rem 1.8rem; /* More generous padding */
+    padding: 0.8rem 1.5rem; /* Reduced generous padding */
     border: none;
     border-radius: var(--border-radius-sm);
     background-color: var(--primary-color);
     color: white;
-    font-size: 1.05rem;
+    font-size: 1rem; /* Reduced font size */
     cursor: pointer;
     transition: background-color var(--transition-speed) ease, transform 0.2s ease, box-shadow var(--transition-speed) ease;
     display: flex;
@@ -394,7 +394,7 @@ input[type="text"],
 textarea,
 select {
     width: 100%;
-    padding: 0.9rem 1.2rem; /* More padding for inputs */
+    padding: 0.7rem 1rem; /* Reduced padding for inputs */
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-sm);
     font-size: 1rem;
@@ -420,7 +420,7 @@ select:focus {
 
 textarea {
     resize: vertical;
-    min-height: 120px; /* Slightly taller default height */
+    min-height: 100px; /* Reduced default height */
 }
 
 /* Status Messages */
@@ -448,12 +448,12 @@ textarea {
 /* --- Command Usage Stats --- */
 .chart-container {
     position: relative;
-    height: 350px; /* Taller chart for better visualization */
+    height: 300px; /* Reduced chart height */
     width: 100%;
     margin-bottom: 2rem;
     background-color: var(--background-card);
     border-radius: var(--border-radius-md);
-    padding: 1.5rem;
+    padding: 1.2rem; /* Reduced padding */
     box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05); /* Inner shadow */
 }
 
@@ -500,8 +500,8 @@ textarea {
     background-color: var(--background-dark-card); /* Dark background for logs */
     color: #e0e0e0; /* Light text for contrast */
     border-radius: var(--border-radius-md);
-    padding: 1.5rem;
-    height: 500px; /* Taller log output area */
+    padding: 1.2rem; /* Reduced padding */
+    height: 400px; /* Reduced log output area height */
     overflow-y: auto;
     font-family: 'Fira Code', 'Consolas', 'Monaco', 'Lucida Console', monospace; /* Modern monospace font */
     font-size: 0.9rem;
@@ -561,7 +561,7 @@ textarea {
     background-color: var(--background-card);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    padding: 1.8rem;
+    padding: 1.5rem; /* Reduced padding */
     box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -627,67 +627,67 @@ textarea {
 /* --- Responsive Adjustments --- */
 @media (max-width: 1200px) {
     .container {
-        padding: 2.5rem;
+        padding: 1.8rem;
     }
     h1 {
-        font-size: 2.8rem;
-    }
-    h1 .fab.fa-discord {
-        font-size: 3.2rem;
-    }
-    .dashboard-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-    }
-    .dashboard-item p {
         font-size: 2.4rem;
     }
-    .dashboard-item p i {
-        font-size: 2.2rem;
-    }
-    .status-indicator {
-        font-size: 1.1rem;
-    }
-    .chart-container {
-        height: 300px;
-    }
-}
-
-@media (max-width: 992px) {
-    body {
-        padding: 2rem;
-    }
-    .container {
-        padding: 2rem;
-        gap: 1.5rem;
-    }
-    h1 {
-        font-size: 2.5rem;
-        margin-bottom: 2rem;
-    }
     h1 .fab.fa-discord {
         font-size: 2.8rem;
     }
-    h2 {
-        font-size: 1.8rem;
-        margin-bottom: 1.5rem;
-    }
     .dashboard-grid {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.2rem;
-    }
-    .dashboard-item {
-        padding: 1.5rem;
-        min-height: 130px;
-    }
-    .dashboard-item h3 {
-        font-size: 1.1rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
     }
     .dashboard-item p {
         font-size: 2rem;
     }
     .dashboard-item p i {
         font-size: 1.8rem;
+    }
+    .status-indicator {
+        font-size: 1.1rem;
+    }
+    .chart-container {
+        height: 280px;
+    }
+}
+
+@media (max-width: 992px) {
+    body {
+        padding: 1rem;
+    }
+    .container {
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+    h1 {
+        font-size: 2.2rem;
+        margin-bottom: 2rem;
+    }
+    h1 .fab.fa-discord {
+        font-size: 2.5rem;
+    }
+    h2 {
+        font-size: 1.6rem;
+        margin-bottom: 1.5rem;
+    }
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.2rem;
+    }
+    .dashboard-item {
+        padding: 1.2rem;
+        min-height: 100px;
+    }
+    .dashboard-item h3 {
+        font-size: 1.1rem;
+    }
+    .dashboard-item p {
+        font-size: 1.6rem;
+    }
+    .dashboard-item p i {
+        font-size: 1.4rem;
     }
     .status-indicator {
         font-size: 1rem;
@@ -704,35 +704,35 @@ textarea {
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
     .guild-icon, .guild-icon-placeholder {
-        width: 60px;
-        height: 60px;
-        font-size: 1.8rem;
+        width: 50px;
+        height: 50px;
+        font-size: 1.6rem;
     }
     .guild-details h3 {
         font-size: 1.1rem;
     }
     .log-output {
-        height: 400px;
+        height: 350px;
     }
 }
 
 @media (max-width: 768px) {
     body {
-        padding: 1rem;
+        padding: 0.8rem;
     }
     .container {
-        padding: 1.5rem;
+        padding: 1rem;
         border-radius: var(--border-radius-md);
     }
     h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
         gap: 0.8rem;
     }
     h1 .fab.fa-discord {
-        font-size: 2.2rem;
+        font-size: 2rem;
     }
     h2 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
     }
     .tab-navigation {
         flex-direction: column;
@@ -755,14 +755,14 @@ textarea {
         margin-bottom: 0.5rem;
     }
     .dashboard-item p {
-        font-size: 2rem;
+        font-size: 1.4rem;
         gap: 0.6rem;
     }
     .dashboard-item p i {
-        font-size: 1.8rem;
+        font-size: 1.2rem;
     }
     .status-indicator {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
     }
     :is(.control-buttons, .log-controls, .log-simulation-controls) {
@@ -775,11 +775,11 @@ textarea {
         box-sizing: border-box;
     }
     .chart-container {
-        height: 280px;
+        height: 250px;
         padding: 1rem;
     }
     .log-output {
-        height: 350px;
+        height: 300px;
     }
     .config-list li span:first-child {
         width: auto;
@@ -798,34 +798,39 @@ textarea {
 
 @media (max-width: 480px) {
     .container {
-        padding: 1rem;
+        padding: 0.8rem;
     }
     h1 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
     }
     h1 .fab.fa-discord {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
     h2 {
-        font-size: 1.4rem;
+        font-size: 1.2rem;
         margin-bottom: 1rem;
     }
     .dashboard-item p {
-        font-size: 1.6rem;
+        font-size: 1.2rem;
     }
     .dashboard-item p i {
-        font-size: 1.4rem;
+        font-size: 1rem;
     }
     .tab-button {
-        font-size: 0.85rem;
-        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.6rem;
     }
     .guild-card {
         flex-direction: column;
         text-align: center;
         gap: 0.8rem;
+    }
+    .guild-icon, .guild-icon-placeholder {
+        width: 40px;
+        height: 40px;
+        font-size: 1.4rem;
     }
     .guild-details {
         text-align: center;
@@ -837,8 +842,8 @@ textarea {
         font-size: 0.75rem;
     }
     .log-output {
-        font-size: 0.8rem;
-        height: 300px;
+        font-size: 0.75rem;
+        height: 250px;
         padding: 0.8rem;
     }
     .log-simulation-controls button {
