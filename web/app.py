@@ -26,7 +26,7 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
 # Get the URL for the existing bot's API from environment variables
-EXISTING_BOT_API_URL = os.getenv("EXISTING_BOT_API_URL", "http://127.0.0.1:5001")
+EXISTING_BOT_API_URL = os.getenv("EXISTING_BOT_API_URL", "http://0.0.0.0:5001")
 ui_logger.info(f"UI configured to connect to bot API at: {EXISTING_BOT_API_URL}")
 
 # --- API Endpoints for the UI ---
@@ -322,6 +322,6 @@ if __name__ == '__main__':
     # We no longer attempt to start it from app.py.
     # You must run bot.py and app.py in separate processes/terminals.
 
-    ui_logger.info(f"Starting Flask UI app on http://127.0.0.1:5000/")
+    ui_logger.info(f"Starting Flask UI app")
     ui_logger.info(f"Ensure your bot's API is running separately on {EXISTING_BOT_API_URL}")
     run_flask_app()
