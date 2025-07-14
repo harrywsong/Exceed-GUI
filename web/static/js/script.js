@@ -3,7 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
     // This now points to the Flask UI app's API, which proxies requests to the bot's API.
-    const API_BASE_URL = 'http://127.0.0.1:5001/api'; // Changed to UI's API base URL
+    const API_BASE_URL = 'http://127.0.0.1:5000/api'; // Changed to UI's API base URL
 
     // --- Dashboard Elements ---
     const statusIndicator = document.getElementById('status');
