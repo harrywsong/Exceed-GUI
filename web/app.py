@@ -26,7 +26,7 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
 # Get the URL for the existing bot's API from environment variables
-EXISTING_BOT_API_URL = os.getenv("EXISTING_BOT_API_URL", "http://127.0.0.1:5000")
+EXISTING_BOT_API_URL = os.getenv("EXISTING_BOT_API_URL", "http://127.0.0.1:5001")
 ui_logger.info(f"UI configured to connect to bot API at: {EXISTING_BOT_API_URL}")
 
 # --- API Endpoints for the UI ---
