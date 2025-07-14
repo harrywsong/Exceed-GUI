@@ -1,117 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Bot Management UI</title>
-    <!-- Link to your custom CSS file -->
+    <title>디스코드 봇 관리 UI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Font Awesome for icons (e.g., for control panel buttons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Chart.js for graphs and charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fab fa-discord"></i> Discord Bot Management</h1>
+        <h1><i class="fab fa-discord"></i> 디스코드 봇 관리</h1>
 
-        <!-- Dashboard Section -->
         <div class="card dashboard">
-            <h2><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h2>
+            <h2><i class="fas fa-tachometer-alt"></i> 대시보드 개요</h2>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <h3>Bot Status</h3>
-                    <p>Status: <span id="status" class="status-indicator loading">Loading...</span></p>
-                    <p>Uptime: <span id="uptime">Loading...</span></p>
-                    <p>Latency: <span id="latency">Loading...</span></p>
+                    <h3>봇 상태</h3>
+                    <p>상태: <span id="status" class="status-indicator loading">로딩 중...</span></p>
+                    <p>업타임: <span id="uptime">로딩 중...</span></p>
+                    <p>지연 시간: <span id="latency">로딩 중...</span></p>
                 </div>
                 <div class="stat-item">
-                    <h3>Quick Stats</h3>
-                    <p>Commands Used Today: <span id="commands-today">Loading...</span></p>
-                    <p>Active Users: <span id="active-users">Loading...</span></p>
-                    <p>Server Count: <span id="server-count">Loading...</span></p>
+                    <h3>빠른 통계</h3>
+                    <p>오늘 사용된 명령어: <span id="commands-today">로딩 중...</span></p>
+                    <p>활성 사용자: <span id="active-users">로딩 중...</span></p>
+                    <p>서버 수: <span id="server-count">로딩 중...</span></p>
                 </div>
             </div>
         </div>
 
-        <!-- Bot Control Panel Section -->
         <div class="card bot-control-panel">
-            <h2><i class="fas fa-gamepad"></i> Bot Control Panel</h2>
+            <h2><i class="fas fa-gamepad"></i> 봇 제어판</h2>
             <div class="control-buttons">
-                <button id="restart-bot-btn" class="control-btn"><i class="fas fa-redo"></i> Restart Bot</button>
-                <button id="reload-cogs-btn" class="control-btn"><i class="fas fa-sync-alt"></i> Reload Cogs</button>
-                <button id="update-git-btn" class="control-btn"><i class="fas fa-code-branch"></i> Update from Git</button>
+                <button id="restart-bot-btn" class="control-btn"><i class="fas fa-redo"></i> 봇 재시작</button>
+                <button id="reload-cogs-btn" class="control-btn"><i class="fas fa-sync-alt"></i> Cog 재로드</button>
+                <button id="update-git-btn" class="control-btn"><i class="fas fa-code-branch"></i> Git에서 업데이트</button>
             </div>
             <p id="control-status-message" class="message"></p>
         </div>
 
-        <!-- Send Announcement Section -->
         <div class="card announcement-sender">
-            <h2><i class="fas fa-bullhorn"></i> Send Announcement</h2>
+            <h2><i class="fas fa-bullhorn"></i> 공지 보내기</h2>
             <div class="form-group">
-                <label for="announcement-message">Message:</label>
-                <textarea id="announcement-message" rows="4" placeholder="Enter your announcement message"></textarea>
+                <label for="announcement-message">메시지:</label>
+                <textarea id="announcement-message" rows="4" placeholder="공지 메시지를 입력하세요"></textarea>
             </div>
             <div class="form-group">
-                <label for="announcement-channel">Channel ID (e.g., 123456789012345678):</label>
-                <input type="text" id="announcement-channel" placeholder="Enter Discord channel ID">
+                <label for="announcement-channel">채널 ID (예: 123456789012345678):</label>
+                <input type="text" id="announcement-channel" placeholder="디스코드 채널 ID를 입력하세요">
             </div>
-            <button id="send-announcement-btn"><i class="fas fa-paper-plane"></i> Send Announcement</button>
+            <button id="send-announcement-btn"><i class="fas fa-paper-plane"></i> 공지 보내기</button>
             <p id="announcement-status-message" class="message"></p>
         </div>
 
-        <!-- Command Usage Stats Section -->
         <div class="card command-stats">
-            <h2><i class="fas fa-chart-bar"></i> Command Usage Statistics</h2>
+            <h2><i class="fas fa-chart-bar"></i> 명령어 사용 통계</h2>
             <div class="chart-container">
                 <canvas id="commandUsageChart"></canvas>
             </div>
             <div class="stats-details">
-                <h3>Top Commands</h3>
+                <h3>가장 많이 사용된 명령어</h3>
                 <ul id="top-commands-list">
-                    <!-- Top commands will be populated here by JS -->
-                </ul>
+                    </ul>
             </div>
         </div>
 
-        <!-- Logs Viewer Section -->
         <div class="card logs-viewer">
-            <h2><i class="fas fa-clipboard-list"></i> Live Logs</h2>
+            <h2><i class="fas fa-clipboard-list"></i> 실시간 로그</h2>
             <div class="log-controls">
-                <input type="text" id="log-filter" placeholder="Filter logs...">
+                <input type="text" id="log-filter" placeholder="로그 필터링...">
                 <select id="log-level-filter">
-                    <option value="all">All Levels</option>
-                    <option value="info">INFO</option>
-                    <option value="warn">WARN</option>
-                    <option value="error">ERROR</option>
+                    <option value="all">모든 레벨</option>
+                    <option value="info">정보</option>
+                    <option value="warn">경고</option>
+                    <option value="error">오류</option>
                 </select>
-                <button id="clear-logs-btn"><i class="fas fa-eraser"></i> Clear View</button>
-                <button id="download-logs-btn"><i class="fas fa-download"></i> Download</button>
+                <button id="clear-logs-btn"><i class="fas fa-eraser"></i> 화면 지우기</button>
+                <button id="download-logs-btn"><i class="fas fa-download"></i> 다운로드</button>
             </div>
             <div class="log-output" id="log-output">
-                <!-- Log messages will be appended here by JS -->
-            </div>
+                </div>
         </div>
 
-        <!-- Configuration Viewer Section (FIXED) -->
         <div class="card config-viewer">
-            <h2><i class="fas fa-cogs"></i> Configuration Viewer</h2>
-            <p><i>Displaying non-sensitive values from the bot's configuration file.</i></p>
+            <h2><i class="fas fa-cogs"></i> 설정 뷰어</h2>
+            <p><i>봇의 설정 파일에서 민감하지 않은 값을 표시합니다.</i></p>
             <div id="config-output" class="config-list">
-                <p>Loading configuration...</p>
+                <p>설정 로딩 중...</p>
             </div>
         </div>
 
-        <!-- Reaction Roles Editor (Placeholder - Complex UI) -->
         <div class="card reaction-roles">
-            <h2><i class="fas fa-hand-pointer"></i> Reaction Roles Editor (Advanced)</h2>
-            <p>This section would provide a visual editor for setting up reaction roles.</p>
-            <button disabled>Manage Reaction Roles (Coming Soon)</button>
+            <h2><i class="fas fa-hand-pointer"></i> 리액션 역할 편집기 (고급)</h2>
+            <p>이 섹션은 리액션 역할을 설정하기 위한 시각적 편집기를 제공합니다.</p>
+            <button disabled>리액션 역할 관리 (출시 예정)</button>
         </div>
 
     </div>
 
-    <!-- Link to your custom JavaScript file -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
