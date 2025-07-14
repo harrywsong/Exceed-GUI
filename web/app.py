@@ -229,6 +229,87 @@ def get_command_stats_proxy():
         ui_logger.critical(f"An unexpected error occurred in get_command_stats_proxy: {e}", exc_info=True)
         return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
 
+@app.route('/api/reaction_roles/add', methods=['POST'])
+def add_reaction_role_proxy():
+    """
+    Proxies the request to the bot's /api/reaction_roles/add endpoint
+    to create a new reaction role.
+    Expected request from UI: JSON {"guild_id": int, "message_id": int,
+                                   "channel_id": int, "emoji": string, "role_id": int}
+    """
+    data = request.get_json()
+    ui_logger.info(f"Received reaction role ADD request from UI: {data}") # For debugging UI requests
+
+    if not data:
+        return jsonify({"success": False, "error": "No JSON data provided from UI."}), 400
+
+    # Validate required fields from the UI request
+    required_fields = ['guild_id', 'message_id', 'channel_id', 'emoji', 'role_id']
+    if not all(field in data for field in required_fields):
+        missing = [field for field in required_fields if field not in data]
+        ui_logger.error(f"Missing required fields in UI request: {missing}")
+        return jsonify({"success": False, "error": f"Missing required fields: {', '.join(missing)}"}), 400
+
+    try:
+        # Ensure data types are correct before sending to bot API
+        payload = {
+            "guild_id": int(data['guild_id']),
+            "message_id": int(data['message_id']),
+            "channel_id": int(data['channel_id']), # Ensure channel_id is included
+            "emoji": str(data['emoji']),
+            "role_id": int(data['role_id'])
+        }
+        ui_logger.info(f"Sending reaction role ADD payload to bot API: {payload}")
+
+        response = requests.post(
+            f"{EXISTING_BOT_API_URL}/api/reaction_roles/add",
+            json=payload,
+            timeout=10
+        )
+        response.raise_for_status() # This will raise HTTPError for 4xx/5xx responses
+        bot_response = response.json()
+
+        if bot_response.get("success"):
+            ui_logger.info("Reaction role added successfully by bot API.")
+            return jsonify({"success": True, "message": bot_response.get("message", "Reaction role added successfully.")}), 201
+        else:
+            error_message = bot_response.get("error", "Bot API failed to add reaction role.")
+            ui_logger.error(f"Bot API reported failure adding reaction role: {error_message}")
+            return jsonify({"success": False, "error": error_message}), response.status_code # Use bot's status code
+
+    except ValueError as e:
+        ui_logger.error(f"Invalid data type received from UI for reaction role: {e}", exc_info=True)
+        return jsonify({"success": False, "error": f"Invalid data type provided. Ensure IDs are numbers. Details: {e}"}), 400
+    except requests.exceptions.RequestException as e:
+        ui_logger.error(f"Error proxying reaction roles ADD request to bot API: {e}", exc_info=True)
+        # Catch specific HTTPError for more detailed client-side messages
+        if isinstance(e, requests.exceptions.HTTPError):
+            return jsonify({"success": False, "error": f"Bot API Error {e.response.status_code}: {e.response.text}"}), e.response.status_code
+        return jsonify({"success": False, "error": f"Failed to communicate with bot API: {e}"}), 500
+    except Exception as e:
+        ui_logger.critical(f"An unexpected error occurred in add_reaction_role_proxy: {e}", exc_info=True)
+        return jsonify({"success": False, "error": f"An unexpected error occurred: {e}"}), 500
+
+@app.route('/api/reaction_roles', methods=['GET'])
+def get_reaction_roles_proxy():
+    """
+    Proxies the request to the bot's /api/reaction_roles endpoint
+    to fetch existing reaction role configurations.
+    """
+    try:
+        response = requests.get(f"{EXISTING_BOT_API_URL}/api/reaction_roles", timeout=10)
+        response.raise_for_status()
+        bot_response = response.json()
+        ui_logger.info("Successfully fetched reaction roles from bot API.")
+        return jsonify(bot_response), response.status_code
+    except requests.exceptions.RequestException as e:
+        ui_logger.error(f"Error proxying reaction roles GET request to bot API: {e}", exc_info=True)
+        if isinstance(e, requests.exceptions.HTTPError):
+            return jsonify({"error": f"Bot API Error {e.response.status_code}: {e.response.text}"}), e.response.status_code
+        return jsonify({"error": f"Failed to fetch reaction roles from bot API: {e}"}), 500
+    except Exception as e:
+        ui_logger.critical(f"An unexpected error occurred in get_reaction_roles_proxy: {e}", exc_info=True)
+        return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
 
 def run_flask_app():
     """
