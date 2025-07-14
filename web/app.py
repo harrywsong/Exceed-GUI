@@ -254,6 +254,22 @@ def add_reaction_role_proxy():
         ui_logger.critical(f"An unexpected error occurred in add_reaction_role_proxy: {e}", exc_info=True)
         return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
 
+@app.route('/api/config', methods=['GET'])
+def get_bot_config_proxy():
+    """
+    Proxies the GET request to the bot's /config endpoint to fetch bot configuration.
+    """
+    try:
+        response = requests.get(f"{EXISTING_BOT_API_URL}/config", timeout=15)
+        response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        ui_logger.error(f"Error proxying bot config request to bot API: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"Failed to fetch bot config from bot API: {e}"}), 500
+    except Exception as e:
+        ui_logger.critical(f"An unexpected error occurred in get_bot_config_proxy: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
+
 def run_flask_app():
     """
     Starts the Flask web server for the UI.
