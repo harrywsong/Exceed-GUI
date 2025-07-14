@@ -336,3 +336,68 @@ button:disabled {
         margin-bottom: 10px;
     }
 }
+
+.guild-card {
+    display: flex;
+    align-items: center;
+    background-color: #36393f; /* Discord dark theme color */
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out;
+}
+
+.guild-card:hover {
+    transform: translateY(-3px);
+}
+
+.guild-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    background-color: #5865f2; /* Discord primary blue for placeholder */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.guild-icon-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #5865f2; /* Discord primary blue */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.guild-details {
+    flex-grow: 1;
+}
+
+.guild-details h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #ffffff;
+    font-size: 1.2em;
+}
+
+.guild-details p {
+    margin: 3px 0;
+    color: #b9bbbe; /* Light grey for text */
+    font-size: 0.9em;
+}
+
+.guild-id, .owner-id {
+    font-size: 0.8em;
+    color: #72767d; /* Darker grey for IDs */
+}

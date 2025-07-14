@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const activeUsersElement = document.getElementById('active-users');
     const serverCountElement = document.getElementById('server-count');
 
+    // --- Server Info Elements ---
+    const serverInfoList = document.getElementById('server-info-list');
+
     // --- Bot Control Panel Elements ---
     const restartBotBtn = document.getElementById('restart-bot-btn');
     const reloadCogsBtn = document.getElementById('reload-cogs-btn');
@@ -112,6 +115,54 @@ document.addEventListener('DOMContentLoaded', () => {
             if (commandsTodayElement) commandsTodayElement.textContent = 'N/A';
             if (activeUsersElement) activeUsersElement.textContent = 'N/A';
             if (serverCountElement) serverCountElement.textContent = 'N/A';
+        }
+    }
+
+    // --- Server Info Functions ---
+
+    async function fetchServerInfo() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/guilds`);
+            const data = await response.json();
+
+            if (response.ok) {
+                serverInfoList.innerHTML = ''; // Clear previous content
+
+                if (data.length === 0) {
+                    serverInfoList.innerHTML = '<p>봇이 참여하고 있는 서버가 없습니다.</p>';
+                    return;
+                }
+
+                data.forEach(guild => {
+                    const guildCard = document.createElement('div');
+                    guildCard.className = 'guild-card'; // Add a class for styling
+
+                    let iconHtml = '';
+                    if (guild.icon_url) {
+                        iconHtml = `<img src="${guild.icon_url}" alt="${guild.name} Icon" class="guild-icon">`;
+                    } else {
+                        iconHtml = `<div class="guild-icon-placeholder">${guild.name.charAt(0).toUpperCase()}</div>`;
+                    }
+
+                    guildCard.innerHTML = `
+                        ${iconHtml}
+                        <div class="guild-details">
+                            <h3>${guild.name} <span class="guild-id">(ID: ${guild.id})</span></h3>
+                            <p>멤버 수: ${guild.member_count}</p>
+                            <p>채널 수: ${guild.channel_count}</p>
+                            <p>소유자: ${guild.owner_name} <span class="owner-id">(ID: ${guild.owner_id})</span></p>
+                        </div>
+                    `;
+                    serverInfoList.appendChild(guildCard);
+                });
+
+            } else {
+                console.error('Failed to fetch server info:', data.error);
+                serverInfoList.innerHTML = `<p class="error">서버 정보를 가져오는 중 오류 발생: ${data.error || '알 수 없는 오류'}</p>`;
+            }
+        } catch (error) {
+            console.error('Network error fetching server info:', error);
+            serverInfoList.innerHTML = '<p class="error">서버 정보를 가져오는 중 네트워크 오류가 발생했습니다.</p>';
         }
     }
 
