@@ -414,88 +414,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchNewLogsOnly() {
-        let url = `${API_BASE_URL}/logs`;
-        // Append since_timestamp parameter if lastClearedTimestamp is set
-        if (lastClearedTimestamp) {
-            url += `?since_timestamp=${encodeURIComponent(lastClearedTimestamp)}`;
-        }
-
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-
-            if (response.ok && data.status === 'success') {
-                // Filter out any logs that might already be in allLogEntries (due to simulation, etc.)
-                // This prevents duplicates if simulated logs are also written to the file
-                const newLogs = data.logs.filter(newEntry =>
-                    !allLogEntries.some(existingEntry =>
-                        existingEntry.timestamp === newEntry.timestamp &&
-                        existingEntry.level === newEntry.level &&
-                        existingEntry.message === newEntry.message
-                    )
-                );
-
-                if (newLogs.length > 0) {
-                    allLogEntries.push(...newLogs); // Add new logs to the array
-                    renderLogs(); // Re-render the entire list to include new logs
-                }
-            } else if (response.status === 400 && data.message.includes("Invalid since_timestamp format")) {
-                console.warn("Backend reported invalid timestamp format. Resetting lastClearedTimestamp.");
-                lastClearedTimestamp = null; // Reset to fetch all next time if format was bad
-                // Optionally, you might want to notify the user of the timestamp error.
-            } else {
-                console.error('Failed to fetch new logs:', data.error);
-            }
-        } catch (error) {
-            console.error('Network error fetching new logs:', error);
-        }
+async function fetchNewLogsOnly() {
+    let url = `${API_BASE_URL}/logs`;
+    // It's good practice to still send since_timestamp for backend efficiency
+    if (lastClearedTimestamp) {
+        url += `?since_timestamp=${encodeURIComponent(lastClearedTimestamp)}`;
     }
 
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (response.ok && data.status === 'success') {
+            let fetchedLogs = data.logs;
+
+            // --- START OF NEW CLIENT-SIDE FILTERING LOGIC ---
+            // If a last cleared timestamp exists, filter logs that are older than it
+            if (lastClearedTimestamp) {
+                // Parse the clear timestamp into a Date object
+                // The format YYYY-MM-DD HH:MM:SS is generally parsable by Date()
+                const clearTime = new Date(lastClearedTimestamp);
+
+                // Filter out any logs from the fetched data that occurred BEFORE the clear time
+                fetchedLogs = fetchedLogs.filter(log => {
+                    const logTime = new Date(log.timestamp); // Assuming log.timestamp from backend is parsable
+                    return logTime > clearTime; // Only keep logs that are strictly newer than the clear time
+                });
+            }
+            // --- END OF NEW CLIENT-SIDE FILTERING LOGIC ---
+
+            // Existing filter to prevent duplicates (still useful if logs are simulated or somehow duplicated)
+            const trulyNewLogs = fetchedLogs.filter(newEntry =>
+                !allLogEntries.some(existingEntry =>
+                    existingEntry.timestamp === newEntry.timestamp &&
+                    existingEntry.level === newEntry.level &&
+                    existingEntry.message === newEntry.message
+                )
+            );
+
+            if (trulyNewLogs.length > 0) {
+                allLogEntries.push(...trulyNewLogs); // Add new logs to the array
+                renderLogs(); // Re-render the entire list to include new logs
+            }
+        } else if (response.status === 400 && data.message.includes("Invalid since_timestamp format")) {
+            console.warn("Backend reported invalid timestamp format. Resetting lastClearedTimestamp.");
+            lastClearedTimestamp = null; // Reset to fetch all next time if format was bad
+        } else {
+            console.error('Failed to fetch new logs:', data.error);
+        }
+    } catch (error) {
+        console.error('Network error fetching new logs:', error);
+    }
+}
     // New function to add a single log entry to the display and array
 function addLogEntry(entry) {
-    // Apply current filters to the new entry before adding to display
-    const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : '');
-    const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all');
-
-    const matchesText = (entry.message && entry.message.toLowerCase().includes(filterText)) ||
-                        (entry.timestamp && entry.timestamp.toLowerCase().includes(filterText)) ||
-                        (entry.level && entry.level.toLowerCase().includes(filterText)) ||
-                        (entry.logger_name && entry.logger_name.toLowerCase().includes(filterText));
-
-    const matchesLevel = filterLevel === 'all' || (entry.level && entry.level.toLowerCase() === filterLevel);
-
-    // This block ensures the log is added to the in-memory array
-    // You have logic here already, so ensure it pushes the 'entry' to 'allLogEntries'
-    // The previous filter check was redundant here as renderLogs() handles filtering.
-    // For simplicity, we'll ensure all entries are added to the array for processing by renderLogs.
-    // Remove the 'if (matchesText && matchesLevel)' around the push, as renderLogs filters.
-    allLogEntries.push(entry);
-
-    // --- START OF CHANGE ---
-    // REMOVE or COMMENT OUT the following lines:
-    /*
-    if (matchesText && matchesLevel) { // This outer if is also no longer needed here if renderLogs filters
-        // Create and append the new paragraph element for the log
-        const p = document.createElement('p');
-        const logSourceName = entry.logger_name || 'UNKNOWN';
-        const logLevel = entry.level || 'UNKNOWN';
-        const logTimestamp = entry.timestamp || 'N/A';
-        const logMessage = entry.message || '';
-
-        p.className = `log-entry ${logLevel.toLowerCase()}`;
-        p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
-        logOutput.appendChild(p);
-
-        // Scroll to the bottom
-        logOutput.scrollTop = logOutput.scrollHeight;
-    }
-    */
-    // Instead, always call renderLogs() after adding to the array
-    renderLogs(); //
-    // --- END OF CHANGE ---
+        allLogEntries.push(entry);
+    renderLogs();
 }
-
     function renderLogs() {
         if (!logOutput) {
             console.warn("Log output element not found. Cannot render logs.");
