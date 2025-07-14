@@ -714,4 +714,32 @@ function addLogEntry(entry) {
         });
     });
 
+// In script.js
+const logOutputElement = document.getElementById('log-output');
+
+async function fetchAndDisplayLogs() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/logs`); // New endpoint to be created
+        const data = await response.json();
+        logOutputElement.innerHTML = ''; // Clear existing logs
+        if (data.status === 'success' && data.logs) {
+            data.logs.forEach(log => {
+                addLogEntry(log); // Reuse addLogEntry or create a new one
+            });
+        } else {
+            logOutputElement.innerHTML = '<p class="error-message">로그를 불러오는 데 실패했습니다.</p>';
+        }
+    } catch (error) {
+        console.error('Error fetching logs:', error);
+        logOutputElement.innerHTML = '<p class="error-message">네트워크 오류로 로그를 불러올 수 없습니다.</p>';
+    }
+}
+
+// Call this when the logs viewer tab is activated
+document.querySelector('.tab-navigation').addEventListener('click', (event) => {
+    if (event.target.dataset.tab === 'logs-viewer-tab') {
+        fetchAndDisplayLogs();
+    }
+});
+
 });
