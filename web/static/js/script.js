@@ -464,34 +464,39 @@ function renderLogs() {
         logOutput.scrollTop = logOutput.scrollHeight;
     }
 
-    function setupLogsViewerListeners() {
-        if (logFilterInput) logFilterInput.addEventListener('input', renderLogs);
-        if (logLevelFilterSelect) logLevelFilterSelect.addEventListener('change', renderLogs);
+function setupLogsViewerListeners() {
+    if (logFilterInput) logFilterInput.addEventListener('input', renderLogs);
+    if (logLevelFilterSelect) logLevelFilterSelect.addEventListener('change', renderLogs);
 
-        if (clearLogsBtn) {
-            clearLogsBtn.addEventListener('click', () => {
-                if (logOutput) logOutput.innerHTML = '';
-                if (controlStatusMessage) showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info');
-            });
-        }
-
-        if (downloadLogsBtn) {
-            downloadLogsBtn.addEventListener('click', () => {
-                const logContent = allLogEntries.map(entry => `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`).join('\n');
-                const blob = new Blob([logContent], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `discord_bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                if (controlStatusMessage) showMessage(controlStatusMessage, '로그가 성공적으로 다운로드되었습니다.', 'success');
-            });
-        }
+    if (clearLogsBtn) {
+        clearLogsBtn.addEventListener('click', () => {
+            if (logOutput) logOutput.innerHTML = '';
+            // FIX: Clear the allLogEntries array as well
+            allLogEntries = [];
+            if (controlStatusMessage) showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info');
+            // Re-render logs immediately to reflect the cleared state
+            // This might not be strictly necessary if allLogEntries is empty,
+            // but ensures consistency.
+            renderLogs();
+        });
     }
 
+    if (downloadLogsBtn) {
+        downloadLogsBtn.addEventListener('click', () => {
+            const logContent = allLogEntries.map(entry => `[${entry.level}] ${entry.timestamp} [${entry.name}] ${entry.message}`).join('\n');
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `discord_bot_logs_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            if (controlStatusMessage) showMessage(controlStatusMessage, '로그가 성공적으로 다운로드되었습니다.', 'success');
+        });
+    }
+}
     // --- Configuration Viewer Functions ---
     async function fetchBotConfig() {
         try {
