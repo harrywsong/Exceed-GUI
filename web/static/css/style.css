@@ -18,7 +18,7 @@ body {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Softer, deeper shadow */
     padding: 35px;
     width: 100%;
-    max-width: 900px; /* Slightly wider max-width */
+    max-width: 1200px; /* Wider max-width for more content */
     box-sizing: border-box;
 }
 
@@ -26,7 +26,7 @@ body {
 h1 {
     color: #5865F2; /* Discord brand color */
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 30px; /* Reduced margin */
     font-size: 2.5rem;
     font-weight: 700;
     display: flex;
@@ -36,36 +36,39 @@ h1 {
 
 h1 .fab.fa-discord {
     margin-right: 15px;
-    font-size: 2.8rem;
+    font-size: 0.9em;
+    color: #7289DA; /* Slightly different Discord blue */
 }
 
-.card {
-    background-color: #f9f9f9;
-    border: 1px solid #e6e6e6;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
-}
-
-.card h2 {
-    color: #7289DA; /* Lighter Discord brand color */
+h2 {
+    color: #4f545c; /* Darker grey for section titles */
+    border-bottom: 2px solid #e0e5ec; /* Light separator */
+    padding-bottom: 10px;
     margin-top: 0;
-    border-bottom: 2px solid #eef; /* Thicker, softer border */
-    padding-bottom: 15px;
     margin-bottom: 25px;
     font-size: 1.8rem;
     display: flex;
     align-items: center;
 }
 
-.card h2 .fas, .card h2 .far {
+h2 i {
     margin-right: 12px;
-    font-size: 1.6rem;
-    color: #5865F2;
+    color: #7289DA; /* Icon color */
+    font-size: 1.1em;
 }
 
-/* Form Elements */
+/* Card Styling (Applies to individual sections within tabs) */
+.card {
+    background-color: #f7f9fc; /* Very light background for cards */
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px; /* Space between cards if not in tabs */
+    box-shadow: inset 2px 2px 5px rgba(184, 195, 211, 0.5),
+                inset -5px -5px 10px rgba(255, 255, 255, 0.5); /* Neumorphic inset shadow */
+    border: 1px solid #d1d9e6; /* Soft border */
+}
+
+/* Form Group Styling */
 .form-group {
     margin-bottom: 20px;
 }
@@ -74,98 +77,98 @@ h1 .fab.fa-discord {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
-    color: #555;
+    color: #4f545c;
 }
 
 .form-group input[type="text"],
-.form-group textarea,
-.form-group select {
-    width: calc(100% - 24px); /* Adjust for padding and border */
+.form-group textarea {
+    width: calc(100% - 22px); /* Account for padding and border */
     padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08); /* Inner shadow */
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #d1d9e6;
+    border-radius: 8px;
+    background-color: #e6e9f0; /* Slightly darker input background */
+    color: #333;
+    font-size: 1em;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .form-group input[type="text"]:focus,
-.form-group textarea:focus,
-.form-group select:focus {
+.form-group textarea:focus {
     border-color: #7289DA;
-    box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.2); /* Focus ring */
+    box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.3);
     outline: none;
 }
 
-.form-group textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
-/* Buttons */
+/* Button Styling */
 button {
-    background-color: #5865F2;
+    background-color: #7289DA; /* Discord purple/blue */
     color: white;
-    padding: 12px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    padding: 12px 25px;
     cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: 600;
-    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-button .fas, button .fab {
-    margin-right: 8px;
 }
 
 button:hover {
-    background-color: #454F9D;
+    background-color: #5b6eae; /* Darker shade on hover */
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+button i {
+    margin-right: 8px;
 }
 
 button:disabled {
-    background-color: #cccccc;
+    background-color: #b9bbbe; /* Grey out disabled buttons */
     cursor: not-allowed;
-    box-shadow: none;
     transform: none;
+    box-shadow: none;
 }
 
-/* Messages (Success/Error) */
+/* Message Display Styling (success, error, info) */
 .message {
-    margin-top: 15px;
     padding: 10px 15px;
-    border-radius: 5px;
+    margin-top: 20px;
+    border-radius: 8px;
     font-weight: bold;
     text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.message.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 .message.success {
-    background-color: #e6ffe6;
-    color: #28a745;
-    border: 1px solid #28a745;
+    background-color: #43b581; /* Discord green */
+    color: white;
 }
 
 .message.error {
-    background-color: #ffe6e6;
-    color: #dc3545;
-    border: 1px solid #dc3545;
+    background-color: #ed4245; /* Discord red */
+    color: white;
 }
 
 .message.info {
-    background-color: #e6f7ff;
-    color: #007bff;
-    border: 1px solid #007bff;
+    background-color: #5865F2; /* Discord blue */
+    color: white;
 }
 
 /* Dashboard Specifics */
@@ -176,175 +179,64 @@ button:disabled {
 }
 
 .dashboard .stat-item {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    background-color: #e6e9f0; /* Lighter background for stat items */
     padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 .dashboard .stat-item h3 {
-    color: #5865F2;
+    color: #4f545c;
     margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.3rem;
+    margin-bottom: 10px;
+    font-size: 1.2em;
 }
 
 .dashboard .stat-item p {
-    margin-bottom: 8px;
-    font-size: 1.1rem;
+    font-size: 1.1em;
+    color: #333;
+    margin: 5px 0;
 }
 
-.dashboard .status-indicator {
-    font-weight: bold;
-    padding: 3px 8px;
-    border-radius: 4px;
-}
-
-.dashboard .status-indicator.online {
-    background-color: #e6ffe6;
-    color: #28a745;
-}
-
-.dashboard .status-indicator.offline {
-    background-color: #ffe6e6;
-    color: #dc3545;
-}
-
-/* Bot Control Panel */
-.bot-control-panel .control-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-}
-
-.bot-control-panel .control-btn {
-    min-width: 180px;
-}
-
-/* Command Usage Stats */
-.command-stats .chart-container {
-    max-width: 100%;
-    height: 300px; /* Fixed height for the chart */
-    margin-bottom: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.command-stats .stats-details ul {
-    list-style: none;
-    padding: 0;
-}
-
-.command-stats .stats-details li {
-    background-color: #f0f0f0;
-    margin-bottom: 8px;
-    padding: 10px 15px;
+.status-indicator {
+    padding: 5px 10px;
     border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 500;
+    font-weight: bold;
+    color: white;
 }
 
-/* Logs Viewer */
-.logs-viewer .log-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+.status-indicator.online {
+    background-color: #43b581; /* Green */
 }
 
-.logs-viewer .log-controls input,
-.logs-viewer .log-controls select {
-    flex: 1;
-    min-width: 150px;
+.status-indicator.offline {
+    background-color: #ed4245; /* Red */
 }
 
-.logs-viewer .log-output {
-    background-color: #2c2f33; /* Dark background for logs */
-    color: #f0f0f0; /* Light text for logs */
-    padding: 15px;
-    border-radius: 8px;
-    height: 300px; /* Fixed height for log output */
-    overflow-y: auto; /* Enable scrolling */
-    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
-    font-size: 0.9rem;
-    white-space: pre-wrap; /* Preserve whitespace and wrap text */
+.status-indicator.error {
+    background-color: #faa61a; /* Orange */
 }
 
-.logs-viewer .log-entry {
-    margin-bottom: 5px;
-    padding: 2px 0;
-    border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+.status-indicator.loading {
+    background-color: #7289DA; /* Blue */
 }
 
-.logs-viewer .log-entry:last-child {
-    border-bottom: none;
-}
 
-.logs-viewer .log-entry.info { color: #88c0d0; } /* Blueish */
-.logs-viewer .log-entry.warn { color: #ebcb8b; } /* Yellowish */
-.logs-viewer .log-entry.error { color: #bf616a; } /* Reddish */
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-    }
-
-    h1 {
-        font-size: 2rem;
-    }
-
-    h1 .fab.fa-discord {
-        font-size: 2.2rem;
-    }
-
-    .card h2 {
-        font-size: 1.5rem;
-    }
-
-    .card h2 .fas, .card h2 .far {
-        font-size: 1.3rem;
-    }
-
-    .dashboard .stats-grid {
-        grid-template-columns: 1fr; /* Stack columns on small screens */
-    }
-
-    .bot-control-panel .control-buttons {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: stretch;
-    }
-
-    button {
-        width: 100%; /* Full width buttons on small screens */
-    }
-
-    .logs-viewer .log-controls {
-        flex-direction: column;
-    }
-
-    .logs-viewer .log-controls input,
-    .logs-viewer .log-controls select,
-    .logs-viewer .log-controls button {
-        width: 100%;
-        margin-bottom: 10px;
-    }
+/* Server Info Specifics */
+.server-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 .guild-card {
+    background-color: #e6e9f0;
+    border-radius: 10px;
+    padding: 15px;
     display: flex;
     align-items: center;
-    background-color: #36393f; /* Discord dark theme color */
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out;
 }
 
@@ -353,31 +245,28 @@ button:disabled {
 }
 
 .guild-icon {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    object-fit: cover;
     margin-right: 15px;
-    background-color: #5865f2; /* Discord primary blue for placeholder */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 1.5em;
-    font-weight: bold;
+    object-fit: cover;
+    background-color: #b9bbbe;
+    flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .guild-icon-placeholder {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background-color: #5865f2; /* Discord primary blue */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin-right: 15px;
+    background-color: #7289DA;
     color: white;
-    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
     font-weight: bold;
+    flex-shrink: 0;
 }
 
 .guild-details {
@@ -385,29 +274,143 @@ button:disabled {
 }
 
 .guild-details h3 {
-    margin-top: 0;
-    margin-bottom: 5px;
-    color: #ffffff;
-    font-size: 1.2em;
+    margin: 0 0 5px 0;
+    color: #4f545c;
+    font-size: 1.15em;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.guild-details .guild-id {
+    font-size: 0.8em;
+    color: #8e9297;
+    margin-left: 8px;
+    font-weight: normal;
 }
 
 .guild-details p {
     margin: 3px 0;
-    color: #b9bbbe; /* Light grey for text */
+    color: #5a5f6a;
+    font-size: 0.95em;
+}
+
+.guild-details .owner-id {
+    font-size: 0.8em;
+    color: #8e9297;
+    margin-left: 5px;
+}
+
+
+/* Command Usage Stats Specifics */
+.chart-container {
+    position: relative;
+    height: 300px; /* Fixed height for the chart */
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.command-usage-stats h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #4f545c;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+}
+
+.command-usage-stats h3 i {
+    margin-right: 10px;
+    color: #7289DA;
+}
+
+.top-commands-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.top-commands-list li {
+    background-color: #e6e9f0; /* Lighter background for list items */
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.top-commands-list li span:first-child {
+    font-weight: bold;
+    color: #4f545c;
+}
+
+.top-commands-list li span:last-child {
+    color: #7289DA;
+    font-weight: bold;
+}
+
+
+/* Logs Viewer Specifics */
+.log-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow controls to wrap */
+}
+
+.log-controls input[type="text"],
+.log-controls select {
+    flex-grow: 1; /* Allow filter and select to grow */
+    padding: 10px;
+    border: 1px solid #d1d9e6;
+    border-radius: 8px;
+    background-color: #e6e9f0;
+    color: #333;
+    font-size: 0.95em;
+}
+
+.log-controls button {
+    padding: 10px 15px;
     font-size: 0.9em;
 }
 
-.guild-id, .owner-id {
-    font-size: 0.8em;
-    color: #72767d; /* Darker grey for IDs */
+.log-output {
+    background-color: #2f3136; /* Dark background for logs */
+    color: #b9bbbe; /* Light grey text */
+    height: 400px; /* Fixed height for scrollability */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border-radius: 8px;
+    padding: 15px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* Monospaced font for logs */
+    font-size: 0.9em;
+    line-height: 1.4;
+    white-space: pre-wrap; /* Preserve whitespace and wrap text */
+    box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
 }
+
+.log-entry {
+    margin-bottom: 5px;
+    word-break: break-all;
+}
+
+.log-entry.info { color: #b9bbbe; } /* Default log color */
+.log-entry.warn { color: #faa61a; } /* Orange for warnings */
+.log-entry.error { color: #ed4245; } /* Red for errors */
+.log-entry.critical { color: #ff0000; font-weight: bold; } /* Brighter red for critical */
+.log-entry.debug { color: #8e9297; } /* Faded grey for debug */
+
+
+/* Configuration Viewer Styling (Existing, but check for conflicts) */
 #config-output ul {
     list-style: none; /* Remove default bullet points */
     padding: 0;
     margin: 0;
     display: grid;
     gap: 10px; /* Space between config items */
-    /* Optional: If you want columns, use grid-template-columns */
+    /* If you want columns, uncomment and adjust: */
     /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
 }
 
@@ -448,4 +451,125 @@ button:disabled {
     background-color: rgba(237, 66, 69, 0.1);
     border-radius: 5px;
     text-align: center;
+}
+
+/* --- New Tab Navigation and Content Styles --- */
+.tab-navigation {
+    display: flex;
+    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+    justify-content: center;
+    margin-bottom: 25px;
+    background-color: #f7f9fc; /* Light background for the nav bar */
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: inset 1px 1px 3px rgba(184, 195, 211, 0.5);
+}
+
+.tab-button {
+    background-color: transparent;
+    color: #7289DA; /* Discord blue for inactive tabs */
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.05em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px; /* Rounded corners for buttons */
+    margin: 5px; /* Space between buttons */
+    display: flex;
+    align-items: center;
+}
+
+.tab-button i {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+.tab-button:hover {
+    background-color: #e6e9f0; /* Light hover effect */
+    color: #5865F2; /* Slightly darker blue on hover */
+}
+
+.tab-button.active {
+    background-color: #5865F2; /* Active tab background */
+    color: white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for active tab */
+    transform: translateY(-2px); /* Slight lift for active tab */
+}
+
+.tab-content-container {
+    background-color: #ffffff; /* Main content area background */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for content area */
+}
+
+.tab-pane {
+    display: none; /* Hide all tab panes by default */
+    animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+}
+
+.tab-pane.active {
+    display: block; /* Show the active tab pane */
+}
+
+/* Fade-in animation for tab content */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Removed Reaction Roles Specific Styles ---
+.current-reaction-roles-list { ... }
+.reaction-role-item { ... }
+.reaction-role-details { ... }
+.reaction-role-details span { ... }
+.reaction-role-details span strong { ... }
+.reaction-role-details .emoji { ... }
+.reaction-role-item button { ... }
+*/
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        max-width: 95%;
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .tab-navigation {
+        flex-direction: column; /* Stack tabs vertically on small screens */
+        align-items: stretch; /* Stretch tabs to full width */
+        padding: 5px;
+    }
+
+    .tab-button {
+        margin: 5px 0; /* Adjust margin for vertical stack */
+        font-size: 0.95em;
+        padding: 10px 15px;
+    }
+
+    .dashboard .stats-grid,
+    .server-info-grid {
+        grid-template-columns: 1fr; /* Single column on small screens */
+    }
+
+    .log-controls {
+        flex-direction: column;
+    }
+
+    .log-controls input[type="text"],
+    .log-controls select,
+    .log-controls button {
+        width: 100%; /* Full width for controls */
+    }
 }

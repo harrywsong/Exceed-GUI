@@ -12,92 +12,134 @@
     <div class="container">
         <h1><i class="fab fa-discord"></i> 디스코드 봇 관리</h1>
 
-        <div class="card dashboard">
-            <h2><i class="fas fa-tachometer-alt"></i> 대시보드 개요</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <h3>봇 상태</h3>
-                    <p>상태: <span id="status" class="status-indicator loading">로딩 중...</span></p>
-                    <p>업타임: <span id="uptime">로딩 중...</span></p>
-                    <p>지연 시간: <span id="latency">로딩 중...</span></p>
+        <nav class="tab-navigation">
+            <button class="tab-button active" data-tab="dashboard-tab">
+                <i class="fas fa-tachometer-alt"></i> 대시보드
+            </button>
+            <button class="tab-button" data-tab="server-info-tab">
+                <i class="fas fa-server"></i> 서버 정보
+            </button>
+            <button class="tab-button" data-tab="bot-control-tab">
+                <i class="fas fa-cogs"></i> 봇 제어
+            </button>
+            <button class="tab-button" data-tab="announcement-tab">
+                <i class="fas fa-bullhorn"></i> 공지 전송
+            </button>
+            <button class="tab-button" data-tab="command-stats-tab">
+                <i class="fas fa-chart-bar"></i> 명령어 통계
+            </button>
+            <button class="tab-button" data-tab="logs-viewer-tab">
+                <i class="fas fa-clipboard-list"></i> 실시간 로그
+            </button>
+            <button class="tab-button" data-tab="config-viewer-tab">
+                <i class="fas fa-sliders-h"></i> 설정 뷰어
+            </button>
+        </nav>
+
+        <div class="tab-content-container">
+            <div id="dashboard-tab" class="tab-pane active">
+                <div class="card dashboard">
+                    <h2>대시보드 개요</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <h3>봇 상태</h3>
+                            <p>상태: <span id="status" class="status-indicator loading">로딩 중...</span></p>
+                            <p>업타임: <span id="uptime">로딩 중...</span></p>
+                            <p>지연 시간: <span id="latency">로딩 중...</span></p>
+                        </div>
+                        <div class="stat-item">
+                            <h3>빠른 통계</h3>
+                            <p>오늘 사용된 명령어: <span id="commands-today">로딩 중...</span></p>
+                            <p>활성 사용자: <span id="active-users">로딩 중...</span></p>
+                            <p>서버 수: <span id="server-count">로딩 중...</span></p>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <h3>빠른 통계</h3>
-                    <p>오늘 사용된 명령어: <span id="commands-today">로딩 중...</span></p>
-                    <p>활성 사용자: <span id="active-users">로딩 중...</span></p>
-                    <p>서버 수: <span id="server-count">로딩 중...</span></p>
+            </div>
+
+            <div id="server-info-tab" class="tab-pane">
+                <div class="card guild-viewer">
+                    <h2>서버 정보</h2>
+                    <p><i>봇이 참여하고 있는 서버들의 정보를 표시합니다.</i></p>
+                    <div id="server-info-list" class="server-info-grid">
+                        <p>서버 정보를 로딩 중입니다...</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card bot-control-panel">
-            <h2><i class="fas fa-gamepad"></i> 봇 제어판</h2>
-            <div class="control-buttons">
-                <button id="restart-bot-btn" class="control-btn"><i class="fas fa-redo"></i> 봇 재시작</button>
-                <button id="reload-cogs-btn" class="control-btn"><i class="fas fa-sync-alt"></i> Cog 재로드</button>
-                <button id="update-git-btn" class="control-btn"><i class="fas fa-code-branch"></i> Git에서 업데이트</button>
+            <div id="bot-control-tab" class="tab-pane">
+                <div class="card bot-control-panel">
+                    <h2>봇 제어 패널</h2>
+                    <p><i>봇 재시작, Cog 재로드 또는 Git 업데이트를 수행합니다.</i></p>
+                    <div class="control-buttons">
+                        <button id="restart-bot-btn"><i class="fas fa-sync-alt"></i> 봇 재시작</button>
+                        <button id="reload-cogs-btn"><i class="fas fa-redo-alt"></i> Cog 재로드</button>
+                        <button id="update-git-btn"><i class="fas fa-cloud-download-alt"></i> Git 업데이트</button>
+                    </div>
+                    <p id="control-status-message" class="message"></p>
+                </div>
             </div>
-            <p id="control-status-message" class="message"></p>
-        </div>
 
-        <div class="card announcement-sender">
-            <h2><i class="fas fa-bullhorn"></i> 공지 보내기</h2>
-            <div class="form-group">
-                <label for="announcement-message">메시지:</label>
-                <textarea id="announcement-message" rows="4" placeholder="공지 메시지를 입력하세요"></textarea>
+            <div id="announcement-tab" class="tab-pane">
+                <div class="card send-announcement">
+                    <h2>공지 전송</h2>
+                    <p><i>지정된 채널로 공지 메시지를 전송합니다.</i></p>
+                    <div class="form-group">
+                        <label for="announcement-channel">채널 ID:</label>
+                        <input type="text" id="announcement-channel" placeholder="메시지를 보낼 채널 ID (예: 123...)">
+                    </div>
+                    <div class="form-group">
+                        <label for="announcement-message">메시지:</label>
+                        <textarea id="announcement-message" rows="4" placeholder="보낼 공지 메시지를 입력하세요."></textarea>
+                    </div>
+                    <button id="send-announcement-btn"><i class="fas fa-paper-plane"></i> 공지 전송</button>
+                    <p id="announcement-status-message" class="message"></p>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="announcement-channel">채널 ID (예: 123456789012345678):</label>
-                <input type="text" id="announcement-channel" placeholder="디스코드 채널 ID를 입력하세요">
-            </div>
-            <button id="send-announcement-btn"><i class="fas fa-paper-plane"></i> 공지 보내기</button>
-            <p id="announcement-status-message" class="message"></p>
-        </div>
 
-        <div class="card command-stats">
-            <h2><i class="fas fa-chart-bar"></i> 명령어 사용 통계</h2>
-            <div class="chart-container">
-                <canvas id="commandUsageChart"></canvas>
-            </div>
-            <div class="stats-details">
-                <h3>가장 많이 사용된 명령어</h3>
-                <ul id="top-commands-list">
+            <div id="command-stats-tab" class="tab-pane">
+                <div class="card command-usage-stats">
+                    <h2>명령어 사용 통계</h2>
+                    <div class="chart-container">
+                        <canvas id="commandUsageChart"></canvas>
+                    </div>
+                    <h3><i class="fas fa-list-ol"></i> Top 사용 명령어</h3>
+                    <ul id="top-commands-list" class="top-commands-list">
+                        <li>명령어 통계를 로딩 중입니다...</li>
                     </ul>
-            </div>
-        </div>
-
-        <div class="card logs-viewer">
-            <h2><i class="fas fa-clipboard-list"></i> 실시간 로그</h2>
-            <div class="log-controls">
-                <input type="text" id="log-filter" placeholder="로그 필터링...">
-                <select id="log-level-filter">
-                    <option value="all">모든 레벨</option>
-                    <option value="info">정보</option>
-                    <option value="warn">경고</option>
-                    <option value="error">오류</option>
-                </select>
-                <button id="clear-logs-btn"><i class="fas fa-eraser"></i> 화면 지우기</button>
-                <button id="download-logs-btn"><i class="fas fa-download"></i> 다운로드</button>
-            </div>
-            <div class="log-output" id="log-output">
                 </div>
-        </div>
-
-        <div class="card config-viewer">
-            <h2><i class="fas fa-cogs"></i> 설정 뷰어</h2>
-            <p><i>봇의 설정 파일에서 민감하지 않은 값을 표시합니다.</i></p>
-            <div id="config-output" class="config-list">
-                <p>설정 로딩 중...</p>
             </div>
-        </div>
 
-        <div class="card guild-viewer">
-            <h2><i class="fas fa-server"></i> 서버 정보</h2>
-            <p><i>봇이 참여하고 있는 서버들의 정보를 표시합니다.</i></p>
-            <div id="server-info-list" class="guilds-list"> <p>서버 정보 로딩 중...</p>
+            <div id="logs-viewer-tab" class="tab-pane">
+                <div class="card logs-viewer">
+                    <h2>실시간 로그</h2>
+                    <div class="log-controls">
+                        <input type="text" id="log-filter" placeholder="로그 필터링...">
+                        <select id="log-level-filter">
+                            <option value="all">모든 레벨</option>
+                            <option value="info">정보</option>
+                            <option value="warn">경고</option>
+                            <option value="error">오류</option>
+                        </select>
+                        <button id="clear-logs-btn"><i class="fas fa-eraser"></i> 화면 지우기</button>
+                        <button id="download-logs-btn"><i class="fas fa-download"></i> 다운로드</button>
+                    </div>
+                    <div class="log-output" id="log-output">
+                        </div>
+                </div>
             </div>
-        </div>
 
+            <div id="config-viewer-tab" class="tab-pane">
+                <div class="card config-viewer">
+                    <h2>설정 뷰어</h2>
+                    <p><i>봇의 설정 파일에서 민감하지 않은 값을 표시합니다.</i></p>
+                    <div id="config-output" class="config-list">
+                        <p>설정 로딩 중...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
