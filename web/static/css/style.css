@@ -1,256 +1,244 @@
+/* --- CSS Variables (Recommended) --- */
+:root {
+    --primary-color: #5865F2; /* Discord Brand Blue */
+    --secondary-color: #7289da; /* Lighter Discord Blue */
+    --background-light: #e0e5ec;
+    --background-card: #ffffff;
+    --text-color: #333;
+    --text-light: #666;
+    --border-color: #ddd;
+    --shadow-light: rgba(0, 0, 0, 0.15);
+    --shadow-hover: rgba(0, 0, 0, 0.25);
+    --success-color: #4CAF50;
+    --error-color: #F44336;
+    --info-color: #2196F3;
+    --button-hover-bg: #4752C4;
+    --input-border-focus: #8899FF;
+    --disabled-bg: #e0e0e0;
+    --disabled-text: #a0a0a0;
+}
+
 /* General Body and Container Styling */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #e0e5ec; /* Soft, light background */
-    color: #333;
+    font-family: 'Noto Sans KR', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    background-color: var(--background-light);
+    color: var(--text-color);
     margin: 0;
-    padding: 20px;
+    padding: 2rem; /* Use rem for scalability */
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: flex-start; /* Align to top */
     min-height: 100vh;
-    box-sizing: border-box; /* Include padding in element's total width and height */
+    box-sizing: border-box;
+    line-height: 1.6;
 }
 
 .container {
-    background-color: #ffffff;
+    background-color: var(--background-card);
     border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Softer, deeper shadow */
-    padding: 35px;
+    box-shadow: 0 8px 20px var(--shadow-light);
+    padding: 2.5rem; /* Consistent padding */
     width: 100%;
-    max-width: 1200px; /* Wider max-width for more content */
+    max-width: 1200px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column; /* Organize content vertically */
+    gap: 1.5rem; /* Spacing between main sections */
 }
 
 /* Headings */
 h1 {
-    color: #5865F2; /* Discord brand color */
+    color: var(--primary-color);
     text-align: center;
-    margin-bottom: 30px; /* Reduced margin */
+    margin-bottom: 2rem; /* Adjusted margin */
     font-size: 2.5rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.75rem; /* Space between icon and text */
 }
 
 h1 .fab.fa-discord {
-    margin-right: 15px;
-    font-size: 0.9em;
-    color: #7289DA; /* Slightly different Discord blue */
+    font-size: 2.8rem;
+    vertical-align: middle;
 }
 
 h2 {
-    color: #4f545c; /* Darker grey for section titles */
-    border-bottom: 2px solid #e0e5ec; /* Light separator */
-    padding-bottom: 10px;
-    margin-top: 0;
-    margin-bottom: 25px;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
     font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
     display: flex;
     align-items: center;
 }
 
-h2 i {
-    margin-right: 12px;
-    color: #7289DA; /* Icon color */
-    font-size: 1.1em;
+h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
-/* Card Styling (Applies to individual sections within tabs) */
+/* Cards */
 .card {
-    background-color: #f7f9fc; /* Very light background for cards */
+    background-color: var(--background-card);
     border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 20px; /* Space between cards if not in tabs */
-    box-shadow: inset 2px 2px 5px rgba(184, 195, 211, 0.5),
-                inset -5px -5px 10px rgba(255, 255, 255, 0.5); /* Neumorphic inset shadow */
-    border: 1px solid #d1d9e6; /* Soft border */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Lighter shadow for inner cards */
+    padding: 2rem;
+    margin-bottom: 1.5rem; /* Consistent spacing */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-/* Form Group Styling */
-.form-group {
-    margin-bottom: 20px;
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px var(--shadow-hover);
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #4f545c;
-}
-
-.form-group input[type="text"],
-.form-group textarea {
-    width: calc(100% - 22px); /* Account for padding and border */
-    padding: 12px;
-    border: 1px solid #d1d9e6;
+/* Tab Navigation */
+.tab-navigation {
+    display: flex;
+    flex-wrap: wrap; /* Allow tabs to wrap */
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    background-color: #f0f3f8; /* Lighter background for the nav */
     border-radius: 8px;
-    background-color: #e6e9f0; /* Slightly darker input background */
-    color: #333;
-    font-size: 1em;
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab-button {
+    flex-grow: 1; /* Allow buttons to grow */
+    padding: 0.8rem 1.2rem;
+    border: none;
+    background-color: transparent;
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.tab-button:hover:not(.active) {
+    background-color: #e0e5ec; /* Hover background */
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.tab-button.active {
+    background-color: var(--primary-color);
+    color: var(--background-card);
+    box-shadow: 0 4px 8px var(--shadow-light);
+    transform: translateY(-1px);
+    pointer-events: none; /* Disable click on active tab */
+}
+
+.tab-button i {
+    font-size: 1.1rem;
+}
+
+/* Tab Content Panes */
+.tab-pane {
+    display: none;
+    padding-top: 0.5rem; /* Adjust spacing after tab navigation */
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* --- Dashboard Section --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+    gap: 1.5rem;
+}
+
+.dashboard-item {
+    background-color: #f7f9fc; /* Lighter background for dashboard items */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
-.form-group input[type="text"]:focus,
-.form-group textarea:focus {
-    border-color: #7289DA;
-    box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.3);
-    outline: none;
+.dashboard-item:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
 }
 
-/* Button Styling */
-button {
-    background-color: #7289DA; /* Discord purple/blue */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 25px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
-    display: inline-flex;
+.dashboard-item h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: var(--secondary-color);
+}
+
+.dashboard-item p {
+    font-size: 1.8rem; /* Larger numbers */
+    font-weight: 700;
+    color: var(--text-color);
+    display: flex;
     align-items: center;
     justify-content: center;
-}
-
-button:hover {
-    background-color: #5b6eae; /* Darker shade on hover */
-    transform: translateY(-2px);
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-button:active {
-    transform: translateY(0);
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-button i {
-    margin-right: 8px;
-}
-
-button:disabled {
-    background-color: #b9bbbe; /* Grey out disabled buttons */
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-/* Message Display Styling (success, error, info) */
-.message {
-    padding: 10px 15px;
-    margin-top: 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    text-align: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.message.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.message.success {
-    background-color: #43b581; /* Discord green */
-    color: white;
-}
-
-.message.error {
-    background-color: #ed4245; /* Discord red */
-    color: white;
-}
-
-.message.info {
-    background-color: #5865F2; /* Discord blue */
-    color: white;
-}
-
-/* Dashboard Specifics */
-.dashboard .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.dashboard .stat-item {
-    background-color: #e6e9f0; /* Lighter background for stat items */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.dashboard .stat-item h3 {
-    color: #4f545c;
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.2em;
-}
-
-.dashboard .stat-item p {
-    font-size: 1.1em;
-    color: #333;
-    margin: 5px 0;
+    gap: 0.6rem;
 }
 
 .status-indicator {
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-block; /* For proper padding and alignment */
 }
 
-.status-indicator.online {
-    background-color: #43b581; /* Green */
-}
+.status-indicator.online { background-color: #4CAF50; color: white; }
+.status-indicator.offline { background-color: #F44336; color: white; }
+.status-indicator.error { background-color: #FFC107; color: #333; } /* Warning-like color */
+.status-indicator.restarting { background-color: #9C27B0; color: white; }
+.status-indicator.loading { background-color: #2196F3; color: white; }
 
-.status-indicator.offline {
-    background-color: #ed4245; /* Red */
-}
-
-.status-indicator.error {
-    background-color: #faa61a; /* Orange */
-}
-
-.status-indicator.loading {
-    background-color: #7289DA; /* Blue */
-}
-
-
-/* Server Info Specifics */
-.server-info-grid {
+/* --- Server Info Section --- */
+.server-cards-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    gap: 1.5rem;
 }
 
 .guild-card {
-    background-color: #e6e9f0;
+    background-color: #f7f9fc;
+    border: 1px solid var(--border-color);
     border-radius: 10px;
-    padding: 15px;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out;
+    gap: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 }
 
 .guild-card:hover {
-    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    transform: translateY(-2px);
 }
 
 .guild-icon {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    margin-right: 15px;
     object-fit: cover;
-    background-color: #b9bbbe;
+    border: 2px solid var(--primary-color);
     flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
@@ -258,259 +246,302 @@ button:disabled {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    margin-right: 15px;
-    background-color: #7289DA;
+    background-color: var(--primary-color);
     color: white;
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 2em;
-    font-weight: bold;
+    align-items: center;
+    font-size: 1.8rem;
+    font-weight: 700;
     flex-shrink: 0;
 }
 
-.guild-details {
-    flex-grow: 1;
-}
-
 .guild-details h3 {
-    margin: 0 0 5px 0;
-    color: #4f545c;
-    font-size: 1.15em;
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    font-size: 1.15rem;
+    color: var(--primary-color);
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis */
 }
 
-.guild-details .guild-id {
-    font-size: 0.8em;
-    color: #8e9297;
-    margin-left: 8px;
+.guild-id, .owner-id {
+    font-size: 0.8rem;
+    color: var(--text-light);
     font-weight: normal;
+    margin-left: 0.5rem;
 }
 
 .guild-details p {
-    margin: 3px 0;
-    color: #5a5f6a;
-    font-size: 0.95em;
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+    color: var(--text-color);
 }
 
-.guild-details .owner-id {
-    font-size: 0.8em;
-    color: #8e9297;
-    margin-left: 5px;
+/* --- Bot Control Panel & Announcement Sender --- */
+.control-buttons, .form-group, .log-controls, .log-simulation-controls {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap */
+    gap: 1rem; /* Spacing between items */
+    align-items: flex-end; /* Align items to the bottom if they have different heights */
 }
 
-
-/* Command Usage Stats Specifics */
-.chart-container {
-    position: relative;
-    height: 300px; /* Fixed height for the chart */
-    width: 100%;
-    margin-bottom: 25px;
-}
-
-.command-usage-stats h3 {
-    margin-top: 30px;
-    margin-bottom: 15px;
-    color: #4f545c;
-    font-size: 1.3rem;
+/* General button styles */
+button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     display: flex;
     align-items: center;
+    gap: 0.6rem;
+    font-weight: 500;
+    flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
-.command-usage-stats h3 i {
-    margin-right: 10px;
-    color: #7289DA;
+button:hover:not(:disabled) {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-light);
 }
 
-.top-commands-list {
+button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:disabled {
+    background-color: var(--disabled-bg);
+    color: var(--disabled-text);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Form group styles */
+.form-group {
+    flex-direction: column; /* Stack label and input vertically */
+    align-items: flex-start;
+    width: 100%; /* Take full width */
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+}
+
+input[type="text"],
+textarea,
+select {
+    width: 100%; /* Fill available width */
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Include padding in width */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    color: var(--text-color);
+    background-color: #fefefe;
+}
+
+input[type="text"]::placeholder,
+textarea::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
+}
+
+textarea {
+    resize: vertical; /* Allow vertical resizing only */
+    min-height: 100px;
+}
+
+/* Status Messages */
+.message {
+    padding: 0.8rem 1.2rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: 500;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(10px);
+}
+
+.message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.message.success { background-color: #e8f5e9; color: var(--success-color); border: 1px solid var(--success-color); }
+.message.error { background-color: #ffebee; color: var(--error-color); border: 1px solid var(--error-color); }
+.message.info { background-color: #e3f2fd; color: var(--info-color); border: 1px solid var(--info-color); }
+
+/* --- Command Usage Stats --- */
+.chart-container {
+    position: relative;
+    height: 300px; /* Fixed height for consistency */
+    width: 100%;
+    margin-bottom: 1.5rem;
+    background-color: #f7f9fc;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.top-commands {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive columns */
+    gap: 0.8rem;
 }
 
-.top-commands-list li {
-    background-color: #e6e9f0; /* Lighter background for list items */
-    padding: 10px 15px;
-    border-radius: 8px;
+.top-commands li {
+    background-color: #f0f3f8;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: 0.95rem;
+    color: var(--text-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.top-commands-list li span:first-child {
-    font-weight: bold;
-    color: #4f545c;
+.top-commands li span:first-child {
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
-.top-commands-list li span:last-child {
-    color: #7289DA;
-    font-weight: bold;
+.top-commands li span:last-child {
+    font-weight: 500;
+    color: var(--text-light);
 }
 
-
-/* Logs Viewer Specifics */
-.log-controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap; /* Allow controls to wrap */
+/* --- Logs Viewer --- */
+.log-output {
+    background-color: #2b2b2b; /* Dark background for logs */
+    color: #f0f0f0; /* Light text for contrast */
+    border-radius: 8px;
+    padding: 1rem;
+    height: 400px; /* Fixed height for scrollability */
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+    word-break: break-word; /* Break long words */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #444;
 }
+
+.log-output p {
+    margin: 0; /* Remove default paragraph margins */
+    padding: 0.1rem 0;
+}
+
+/* Log level specific colors */
+.log-entry.info { color: #81C784; } /* Green */
+.log-entry.warning { color: #FFD54F; } /* Yellow */
+.log-entry.error { color: #EF9A9A; } /* Red */
+.log-entry.critical { background-color: #D32F2F; color: white; padding: 0.2rem 0.5rem; display: block; } /* Dark Red background */
+.log-entry.debug { color: #B0BEC5; } /* Light grey */
+.log-entry.raw { color: #9FA8DA; } /* Indigo for raw/webhook */
 
 .log-controls input[type="text"],
 .log-controls select {
     flex-grow: 1; /* Allow filter and select to grow */
-    padding: 10px;
-    border: 1px solid #d1d9e6;
-    border-radius: 8px;
-    background-color: #e6e9f0;
-    color: #333;
-    font-size: 0.95em;
+    min-width: 150px; /* Minimum width for responsiveness */
 }
 
-.log-controls button {
-    padding: 10px 15px;
-    font-size: 0.9em;
+.log-simulation-controls {
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
 }
 
-.log-output {
-    background-color: #2f3136; /* Dark background for logs */
-    color: #b9bbbe; /* Light grey text */
-    height: 400px; /* Fixed height for scrollability */
-    overflow-y: auto; /* Enable vertical scrolling */
-    border-radius: 8px;
-    padding: 15px;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* Monospaced font for logs */
-    font-size: 0.9em;
-    line-height: 1.4;
-    white-space: pre-wrap; /* Preserve whitespace and wrap text */
-    box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.3);
-}
-
-.log-entry {
-    margin-bottom: 5px;
-    word-break: break-all;
-}
-
-.log-entry.info { color: #b9bbbe; } /* Default log color */
-.log-entry.warn { color: #faa61a; } /* Orange for warnings */
-.log-entry.error { color: #ed4245; } /* Red for errors */
-.log-entry.critical { color: #ff0000; font-weight: bold; } /* Brighter red for critical */
-.log-entry.debug { color: #8e9297; } /* Faded grey for debug */
-
-
-/* Configuration Viewer Styling (Existing, but check for conflicts) */
-#config-output ul {
-    list-style: none; /* Remove default bullet points */
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 10px; /* Space between config items */
-    /* If you want columns, uncomment and adjust: */
-    /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
-}
-
-#config-output li {
-    background-color: #36393f; /* Dark background for each config item */
-    border-radius: 8px;
-    padding: 12px 18px;
-    display: flex;
-    justify-content: space-between; /* Space out key and value */
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease-in-out;
-    font-size: 0.95em;
-}
-
-#config-output li:hover {
-    transform: translateY(-2px);
-}
-
-#config-output li span:first-child { /* Style for the config key */
-    color: #b9bbbe; /* Lighter grey for the key */
-    font-weight: bold;
-    flex-shrink: 0; /* Prevent key from shrinking */
-    margin-right: 15px; /* Space between key and value */
-}
-
-#config-output li span:last-child { /* Style for the config value */
-    color: #ffffff; /* White text for the value */
-    text-align: right; /* Align value to the right */
-    word-break: break-all; /* Break long words */
-    flex-grow: 1; /* Allow value to take up remaining space */
-}
-
-/* Specific styling for error messages within config output */
-#config-output p.error {
-    color: #ed4245; /* Red color for error messages */
-    padding: 10px;
-    background-color: rgba(237, 66, 69, 0.1);
-    border-radius: 5px;
+.log-simulation-controls h3 {
+    width: 100%; /* Ensure heading takes full width */
+    margin-bottom: 1rem;
     text-align: center;
 }
 
-/* --- New Tab Navigation and Content Styles --- */
-.tab-navigation {
-    display: flex;
-    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
-    justify-content: center;
-    margin-bottom: 25px;
-    background-color: #f7f9fc; /* Light background for the nav bar */
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: inset 1px 1px 3px rgba(184, 195, 211, 0.5);
+.log-simulation-controls button {
+    background-color: #607d8b; /* Greyish color for simulation buttons */
 }
 
-.tab-button {
-    background-color: transparent;
-    color: #7289DA; /* Discord blue for inactive tabs */
-    border: none;
-    padding: 12px 20px;
-    font-size: 1.05em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 8px; /* Rounded corners for buttons */
-    margin: 5px; /* Space between buttons */
+.log-simulation-controls button:hover:not(:disabled) {
+    background-color: #455a64;
+}
+
+/* --- Configuration Viewer --- */
+.config-list {
+    background-color: #f7f9fc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.config-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.config-list li {
+    background-color: var(--background-card);
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    font-size: 0.95rem;
 }
 
-.tab-button i {
-    margin-right: 8px;
-    font-size: 1.1em;
+.config-list li:last-child {
+    border-bottom: none;
 }
 
-.tab-button:hover {
-    background-color: #e6e9f0; /* Light hover effect */
-    color: #5865F2; /* Slightly darker blue on hover */
+.config-list li span:first-child {
+    font-weight: 600;
+    color: var(--primary-color);
+    flex-shrink: 0; /* Prevent key from shrinking */
+    margin-right: 1rem; /* Space between key and value */
 }
 
-.tab-button.active {
-    background-color: #5865F2; /* Active tab background */
-    color: white;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for active tab */
-    transform: translateY(-2px); /* Slight lift for active tab */
+.config-list li span:last-child {
+    color: var(--text-color);
+    word-break: break-all; /* Allow long values to break */
+    text-align: right;
 }
 
-.tab-content-container {
-    background-color: #ffffff; /* Main content area background */
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for content area */
-}
 
-.tab-pane {
-    display: none; /* Hide all tab panes by default */
-    animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
-}
-
-.tab-pane.active {
-    display: block; /* Show the active tab pane */
+/* General Accessibility & Usability */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--input-border-focus);
+    outline-offset: 2px;
 }
 
 /* Fade-in animation for tab content */
@@ -519,57 +550,76 @@ button:disabled {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Removed Reaction Roles Specific Styles ---
-.current-reaction-roles-list { ... }
-.reaction-role-item { ... }
-.reaction-role-details { ... }
-.reaction-role-details span { ... }
-.reaction-role-details span strong { ... }
-.reaction-role-details .emoji { ... }
-.reaction-role-item button { ... }
-*/
-
 /* Responsive Adjustments */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-        max-width: 95%;
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
+    .server-cards-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .tab-button {
+        padding: 0.7rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
 
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+    .container {
+        padding: 1.5rem;
+    }
     h1 {
         font-size: 2rem;
-        margin-bottom: 20px;
+        margin-bottom: 1.5rem;
     }
-
     h2 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
     }
-
     .tab-navigation {
-        flex-direction: column; /* Stack tabs vertically on small screens */
-        align-items: stretch; /* Stretch tabs to full width */
-        padding: 5px;
-    }
-
-    .tab-button {
-        margin: 5px 0; /* Adjust margin for vertical stack */
-        font-size: 0.95em;
-        padding: 10px 15px;
-    }
-
-    .dashboard .stats-grid,
-    .server-info-grid {
-        grid-template-columns: 1fr; /* Single column on small screens */
-    }
-
-    .log-controls {
         flex-direction: column;
+        align-items: stretch;
+        padding: 0.5rem;
     }
+    .tab-button {
+        margin: 0.25rem 0;
+        justify-content: flex-start; /* Align text to left */
+    }
+    .control-buttons, .log-controls, .log-simulation-controls {
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: stretch; /* Stretch buttons to full width */
+    }
+    button {
+        width: 100%; /* Full width for buttons */
+    }
+    .form-group label {
+        width: 100%;
+    }
+    .log-output {
+        height: 300px; /* Smaller height on mobile */
+    }
+    .chart-container {
+        height: 250px;
+    }
+}
 
-    .log-controls input[type="text"],
-    .log-controls select,
-    .log-controls button {
-        width: 100%; /* Full width for controls */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+    .dashboard-item p {
+        font-size: 1.5rem;
+    }
+    .guild-icon, .guild-icon-placeholder {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    .guild-details h3 {
+        font-size: 1rem;
     }
 }

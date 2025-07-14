@@ -3,151 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="디스코드 봇을 관리하고 모니터링하기 위한 관리 UI입니다.">
     <title>디스코드 봇 관리 UI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0V4LLanw2qksN+K/G1RYPqQ8jJ4h4o9tB9Q4Lq4q4q4q4q4q4q4q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fab fa-discord"></i> 디스코드 봇 관리</h1>
+        <h1><i class="fab fa-discord" aria-hidden="true"></i> 디스코드 봇 관리</h1>
 
-        <nav class="tab-navigation">
-            <button class="tab-button active" data-tab="dashboard-tab">
-                <i class="fas fa-tachometer-alt"></i> 대시보드
+        <nav class="tab-navigation" aria-label="메인 탭 탐색">
+            <button class="tab-button active" data-tab="dashboard-tab" aria-controls="dashboard-tab-pane" role="tab" aria-selected="true">
+                <i class="fas fa-tachometer-alt" aria-hidden="true"></i> 대시보드
             </button>
-            <button class="tab-button" data-tab="server-info-tab">
-                <i class="fas fa-server"></i> 서버 정보
+            <button class="tab-button" data-tab="server-info-tab" aria-controls="server-info-tab-pane" role="tab" aria-selected="false">
+                <i class="fas fa-server" aria-hidden="true"></i> 서버 정보
             </button>
-            <button class="tab-button" data-tab="bot-control-tab">
-                <i class="fas fa-cogs"></i> 봇 제어
+            <button class="tab-button" data-tab="bot-control-tab" aria-controls="bot-control-tab-pane" role="tab" aria-selected="false">
+                <i class="fas fa-cogs" aria-hidden="true"></i> 봇 제어
             </button>
-            <button class="tab-button" data-tab="announcement-tab">
-                <i class="fas fa-bullhorn"></i> 공지 전송
+            <button class="tab-button" data-tab="announcement-tab" aria-controls="announcement-tab-pane" role="tab" aria-selected="false">
+                <i class="fas fa-bullhorn" aria-hidden="true"></i> 공지 전송
             </button>
-            <button class="tab-button" data-tab="command-stats-tab">
-                <i class="fas fa-chart-bar"></i> 명령어 통계
+            <button class="tab-button" data-tab="command-stats-tab" aria-controls="command-stats-tab-pane" role="tab" aria-selected="false">
+                <i class="fas fa-chart-bar" aria-hidden="true"></i> 명령어 통계
             </button>
-            <button class="tab-button" data-tab="logs-viewer-tab">
-                <i class="fas fa-clipboard-list"></i> 실시간 로그
+            <button class="tab-button" data-tab="logs-viewer-tab" aria-controls="logs-viewer-tab-pane" role="tab" aria-selected="false">
+                <i class="fas fa-file-alt" aria-hidden="true"></i> 로그 뷰어
             </button>
-            <button class="tab-button" data-tab="config-viewer-tab">
-                <i class="fas fa-sliders-h"></i> 설정 뷰어
+            <button class="tab-button" data-tab="config-viewer-tab" aria-controls="config-viewer-tab-pane" role="tab" aria-selected="false">
+                <i class="fas fa-cog" aria-hidden="true"></i> 설정 뷰어
             </button>
         </nav>
 
-        <div class="tab-content-container">
-            <div id="dashboard-tab" class="tab-pane active">
-                <div class="card dashboard">
-                    <h2>대시보드 개요</h2>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <h3>봇 상태</h3>
-                            <p>상태: <span id="status" class="status-indicator loading">로딩 중...</span></p>
-                            <p>업타임: <span id="uptime">로딩 중...</span></p>
-                            <p>지연 시간: <span id="latency">로딩 중...</span></p>
-                        </div>
-                        <div class="stat-item">
-                            <h3>빠른 통계</h3>
-                            <p>오늘 사용된 명령어: <span id="commands-today">로딩 중...</span></p>
-                            <p>활성 사용자: <span id="active-users">로딩 중...</span></p>
-                            <p>서버 수: <span id="server-count">로딩 중...</span></p>
-                        </div>
+        <main class="tab-content">
+            <div id="dashboard-tab" class="tab-pane active" role="tabpanel" aria-labelledby="dashboard-tab-button">
+                <section class="card dashboard-grid">
+                    <h2>대시보드</h2>
+                    <div class="dashboard-item status-item">
+                        <h3>봇 상태</h3>
+                        <p><span id="status" class="status-indicator">로딩 중...</span></p>
                     </div>
-                </div>
+                    <div class="dashboard-item">
+                        <h3>봇 업타임</h3>
+                        <p><i class="fas fa-clock" aria-hidden="true"></i> <span id="uptime">N/A</span></p>
+                    </div>
+                    <div class="dashboard-item">
+                        <h3>봇 레이턴시</h3>
+                        <p><i class="fas fa-circle-notch" aria-hidden="true"></i> <span id="latency">N/A</span></p>
+                    </div>
+                    <div class="dashboard-item">
+                        <h3>오늘 사용된 명령어</h3>
+                        <p><i class="fas fa-terminal" aria-hidden="true"></i> <span id="commands-today">N/A</span></p>
+                    </div>
+                    <div class="dashboard-item">
+                        <h3>활동 중인 사용자</h3>
+                        <p><i class="fas fa-users" aria-hidden="true"></i> <span id="active-users">N/A</span></p>
+                    </div>
+                    <div class="dashboard-item">
+                        <h3>참여 서버 수</h3>
+                        <p><i class="fas fa-server" aria-hidden="true"></i> <span id="server-count">N/A</span></p>
+                    </div>
+                </section>
             </div>
 
-            <div id="server-info-tab" class="tab-pane">
-                <div class="card guild-viewer">
+            <div id="server-info-tab" class="tab-pane" role="tabpanel" aria-labelledby="server-info-tab-button">
+                <section class="card server-info">
                     <h2>서버 정보</h2>
-                    <p><i>봇이 참여하고 있는 서버들의 정보를 표시합니다.</i></p>
-                    <div id="server-info-list" class="server-info-grid">
+                    <p><i>봇이 참여하고 있는 서버 목록입니다.</i></p>
+                    <div id="server-info-list" class="server-cards-container">
                         <p>서버 정보를 로딩 중입니다...</p>
                     </div>
-                </div>
+                </section>
             </div>
 
-            <div id="bot-control-tab" class="tab-pane">
-                <div class="card bot-control-panel">
+            <div id="bot-control-tab" class="tab-pane" role="tabpanel" aria-labelledby="bot-control-tab-button">
+                <section class="card bot-control-panel">
                     <h2>봇 제어 패널</h2>
-                    <p><i>봇 재시작, Cog 재로드 또는 Git 업데이트를 수행합니다.</i></p>
+                    <p><i>봇의 주요 기능을 제어합니다.</i></p>
                     <div class="control-buttons">
-                        <button id="restart-bot-btn"><i class="fas fa-sync-alt"></i> 봇 재시작</button>
-                        <button id="reload-cogs-btn"><i class="fas fa-redo-alt"></i> Cog 재로드</button>
-                        <button id="update-git-btn"><i class="fas fa-cloud-download-alt"></i> Git 업데이트</button>
+                        <button id="restart-bot-btn" type="button"><i class="fas fa-sync-alt" aria-hidden="true"></i> 봇 재시작</button>
+                        <button id="reload-cogs-btn" type="button"><i class="fas fa-redo-alt" aria-hidden="true"></i> Cog 재로드</button>
+                        <button id="update-git-btn" type="button"><i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Git에서 업데이트</button>
                     </div>
-                    <p id="control-status-message" class="message"></p>
-                </div>
+                    <div id="control-status-message" class="message"></div>
+                </section>
             </div>
 
-            <div id="announcement-tab" class="tab-pane">
-                <div class="card send-announcement">
+            <div id="announcement-tab" class="tab-pane" role="tabpanel" aria-labelledby="announcement-tab-button">
+                <section class="card announcement-sender">
                     <h2>공지 전송</h2>
-                    <p><i>지정된 채널로 공지 메시지를 전송합니다.</i></p>
-                    <div class="form-group">
-                        <label for="announcement-channel">채널 ID:</label>
-                        <input type="text" id="announcement-channel" placeholder="메시지를 보낼 채널 ID (예: 123...)">
-                    </div>
+                    <p><i>지정된 채널로 공지 메시지를 보냅니다.</i></p>
                     <div class="form-group">
                         <label for="announcement-message">메시지:</label>
-                        <textarea id="announcement-message" rows="4" placeholder="보낼 공지 메시지를 입력하세요."></textarea>
+                        <textarea id="announcement-message" rows="5" placeholder="전송할 공지 메시지를 입력하세요..."></textarea>
                     </div>
-                    <button id="send-announcement-btn"><i class="fas fa-paper-plane"></i> 공지 전송</button>
-                    <p id="announcement-status-message" class="message"></p>
-                </div>
+                    <div class="form-group">
+                        <label for="announcement-channel">채널 ID:</label>
+                        <input type="text" id="announcement-channel" placeholder="메시지를 보낼 Discord 채널 ID (예: 123456789012345678)">
+                    </div>
+                    <button id="send-announcement-btn" type="submit"><i class="fas fa-paper-plane" aria-hidden="true"></i> 공지 전송</button>
+                    <div id="announcement-status-message" class="message"></div>
+                </section>
             </div>
 
-            <div id="command-stats-tab" class="tab-pane">
-                <div class="card command-usage-stats">
+            <div id="command-stats-tab" class="tab-pane" role="tabpanel" aria-labelledby="command-stats-tab-button">
+                <section class="card command-usage-stats">
                     <h2>명령어 사용 통계</h2>
+                    <p><i>봇의 명령어 사용 빈도를 시각화합니다.</i></p>
                     <div class="chart-container">
                         <canvas id="commandUsageChart"></canvas>
                     </div>
-                    <h3><i class="fas fa-list-ol"></i> Top 사용 명령어</h3>
-                    <ul id="top-commands-list" class="top-commands-list">
+                    <h3>가장 많이 사용된 명령어</h3>
+                    <ul id="top-commands-list" class="top-commands">
                         <li>명령어 통계를 로딩 중입니다...</li>
                     </ul>
-                </div>
+                </section>
             </div>
 
-<div id="logs-viewer-tab" class="tab-pane">
-                <div class="card logs-viewer">
-                    <h2>실시간 로그</h2>
+            <div id="logs-viewer-tab" class="tab-pane" role="tabpanel" aria-labelledby="logs-viewer-tab-button">
+                <section class="card logs-viewer">
+                    <h2>로그 뷰어</h2>
+                    <p><i>봇의 실시간 로그를 확인합니다.</i></p>
                     <div class="log-controls">
-                        <input type="text" id="log-filter" placeholder="로그 필터링...">
-                        <select id="log-level-filter">
+                        <input type="text" id="log-filter" placeholder="로그 필터링 (키워드, 레벨, 소스)">
+                        <select id="log-level-filter" aria-label="로그 레벨 필터">
                             <option value="all">모든 레벨</option>
-                            <option value="info">정보</option>
-                            <option value="warning">경고</option>
-                            <option value="error">오류</option>
-                            <option value="critical">치명적</option>
+                            <option value="debug">DEBUG</option>
+                            <option value="info">INFO</option>
+                            <option value="warning">WARNING</option>
+                            <option value="error">ERROR</option>
+                            <option value="critical">CRITICAL</option>
+                            <option value="raw">RAW (Webhook)</option>
                         </select>
-                        <button id="clear-logs-btn"><i class="fas fa-eraser"></i> 화면 지우기</button>
-                        <button id="download-logs-btn"><i class="fas fa-download"></i> 다운로드</button>
+                        <button id="clear-logs-btn" type="button"><i class="fas fa-eraser" aria-hidden="true"></i> 화면 지우기</button>
+                        <button id="download-logs-btn" type="button"><i class="fas fa-download" aria-hidden="true"></i> 다운로드</button>
                     </div>
 
                     <div class="log-simulation-controls">
                         <h3>로그 시뮬레이션</h3>
-                        <button class="simulate-log-btn" data-log-level="INFO">INFO 로그 생성</button>
-                        <button class="simulate-log-btn" data-log-level="WARNING">WARNING 로그 생성</button>
-                        <button class="simulate-log-btn" data-log-level="ERROR">ERROR 로그 생성</button>
-                        <button class="simulate-log-btn" data-log-level="CRITICAL">CRITICAL 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="INFO" type="button">INFO 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="WARNING" type="button">WARNING 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="ERROR" type="button">ERROR 로그 생성</button>
+                        <button class="simulate-log-btn" data-log-level="CRITICAL" type="button">CRITICAL 로그 생성</button>
                     </div>
                     <div class="log-output" id="log-output">
-                        </div>
-                </div>
+                        <p>로그 로딩 중...</p>
+                    </div>
+                </section>
             </div>
-            <div id="config-viewer-tab" class="tab-pane">
-                <div class="card config-viewer">
+
+            <div id="config-viewer-tab" class="tab-pane" role="tabpanel" aria-labelledby="config-viewer-tab-button">
+                <section class="card config-viewer">
                     <h2>설정 뷰어</h2>
                     <p><i>봇의 설정 파일에서 민감하지 않은 값을 표시합니다.</i></p>
                     <div id="config-output" class="config-list">
                         <p>설정 로딩 중...</p>
                     </div>
-                </div>
+                </section>
             </div>
+        </main>
 
-        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
