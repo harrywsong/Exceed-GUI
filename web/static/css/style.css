@@ -623,3 +623,628 @@ textarea:focus-visible {
         font-size: 1rem;
     }
 }
+/* --- CSS Variables (Recommended) --- */
+:root {
+    --primary-color: #5865F2; /* Discord Brand Blue */
+    --secondary-color: #7289da; /* Lighter Discord Blue */
+    --background-light: #e0e5ec;
+    --background-card: #ffffff;
+    --text-color: #333;
+    --text-light: #666;
+    --border-color: #ddd;
+    --shadow-light: rgba(0, 0, 0, 0.15);
+    --shadow-hover: rgba(0, 0, 0, 0.25);
+    --success-color: #4CAF50;
+    --error-color: #F44336;
+    --info-color: #2196F3;
+    --button-hover-bg: #4752C4;
+    --input-border-focus: #8899FF;
+    --disabled-bg: #e0e0e0;
+    --disabled-text: #a0a0a0;
+}
+
+/* General Body and Container Styling */
+body {
+    font-family: 'Noto Sans KR', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    background-color: var(--background-light);
+    color: var(--text-color);
+    margin: 0;
+    padding: 2rem; /* Use rem for scalability */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to top */
+    min-height: 100vh;
+    box-sizing: border-box;
+    line-height: 1.6;
+}
+
+.container {
+    background-color: var(--background-card);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px var(--shadow-light);
+    padding: 2.5rem; /* Consistent padding */
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column; /* Organize content vertically */
+    gap: 1.5rem; /* Spacing between main sections */
+}
+
+/* Headings */
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 2rem; /* Adjusted margin */
+    font-size: 2.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem; /* Space between icon and text */
+}
+
+h1 .fab.fa-discord {
+    font-size: 2.8rem;
+    vertical-align: middle;
+}
+
+h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Cards */
+.card {
+    background-color: var(--background-card);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Lighter shadow for inner cards */
+    padding: 2rem;
+    margin-bottom: 1.5rem; /* Consistent spacing */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px var(--shadow-hover);
+}
+
+/* Tab Navigation */
+.tab-navigation {
+    display: flex;
+    flex-wrap: wrap; /* Allow tabs to wrap */
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    background-color: #f0f3f8; /* Lighter background for the nav */
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab-button {
+    flex-grow: 1; /* Allow buttons to grow */
+    padding: 0.8rem 1.2rem;
+    border: none;
+    background-color: transparent;
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.tab-button:hover:not(.active) {
+    background-color: #e0e5ec; /* Hover background */
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.tab-button.active {
+    background-color: var(--primary-color);
+    color: var(--background-card);
+    box-shadow: 0 4px 8px var(--shadow-light);
+    transform: translateY(-1px);
+    pointer-events: none; /* Disable click on active tab */
+}
+
+.tab-button i {
+    font-size: 1.1rem;
+}
+
+/* Tab Content Panes */
+.tab-pane {
+    display: none;
+    padding-top: 0.5rem; /* Adjust spacing after tab navigation */
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* --- Dashboard Section --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+    gap: 1.5rem;
+}
+
+.dashboard-item {
+    background-color: #f7f9fc; /* Lighter background for dashboard items */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.dashboard-item:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+}
+
+.dashboard-item h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: var(--secondary-color);
+}
+
+.dashboard-item p {
+    font-size: 1.8rem; /* Larger numbers */
+    font-weight: 700;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+}
+
+.status-indicator {
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-block; /* For proper padding and alignment */
+}
+
+.status-indicator.online { background-color: #4CAF50; color: white; }
+.status-indicator.offline { background-color: #F44336; color: white; }
+.status-indicator.error { background-color: #FFC107; color: #333; } /* Warning-like color */
+.status-indicator.restarting { background-color: #9C27B0; color: white; }
+.status-indicator.loading { background-color: #2196F3; color: white; }
+
+/* --- Server Info Section --- */
+.server-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.guild-card {
+    background-color: #f7f9fc;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.guild-card:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.guild-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.guild-icon-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.guild-details h3 {
+    margin-top: 0;
+    margin-bottom: 0.4rem;
+    font-size: 1.15rem;
+    color: var(--primary-color);
+    white-space: nowrap; /* Prevent wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis */
+}
+
+.guild-id, .owner-id {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: normal;
+    margin-left: 0.5rem;
+}
+
+.guild-details p {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+/* --- Bot Control Panel & Announcement Sender --- */
+.control-buttons, .form-group, .log-controls, .log-simulation-controls {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap */
+    gap: 1rem; /* Spacing between items */
+    align-items: flex-end; /* Align items to the bottom if they have different heights */
+}
+
+/* General button styles */
+button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 500;
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+button:hover:not(:disabled) {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-light);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:disabled {
+    background-color: var(--disabled-bg);
+    color: var(--disabled-text);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Form group styles */
+.form-group {
+    flex-direction: column; /* Stack label and input vertically */
+    align-items: flex-start;
+    width: 100%; /* Take full width */
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+}
+
+input[type="text"],
+textarea,
+select {
+    width: 100%; /* Fill available width */
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Include padding in width */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    color: var(--text-color);
+    background-color: #fefefe;
+}
+
+input[type="text"]::placeholder,
+textarea::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--input-border-focus);
+    box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
+}
+
+textarea {
+    resize: vertical; /* Allow vertical resizing only */
+    min-height: 100px;
+}
+
+/* Status Messages */
+.message {
+    padding: 0.8rem 1.2rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: 500;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(10px);
+}
+
+.message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.message.success { background-color: #e8f5e9; color: var(--success-color); border: 1px solid var(--success-color); }
+.message.error { background-color: #ffebee; color: var(--error-color); border: 1px solid var(--error-color); }
+.message.info { background-color: #e3f2fd; color: var(--info-color); border: 1px solid var(--info-color); }
+
+/* --- Command Usage Stats --- */
+.chart-container {
+    position: relative;
+    height: 300px; /* Fixed height for consistency */
+    width: 100%;
+    margin-bottom: 1.5rem;
+    background-color: #f7f9fc;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.top-commands {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive columns */
+    gap: 0.8rem;
+}
+
+.top-commands li {
+    background-color: #f0f3f8;
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.top-commands li span:first-child {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.top-commands li span:last-child {
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+/* --- Logs Viewer --- */
+.log-output {
+    background-color: #2b2b2b; /* Dark background for logs */
+    color: #f0f0f0; /* Light text for contrast */
+    border-radius: 8px;
+    padding: 1rem;
+    height: 400px; /* Fixed height for scrollability */
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', 'Lucida Console', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+    word-break: break-word; /* Break long words */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 1px solid #444;
+}
+
+.log-output p {
+    margin: 0; /* Remove default paragraph margins */
+    padding: 0.1rem 0;
+}
+
+/* Log level specific colors */
+.log-entry.info { color: #81C784; } /* Green */
+.log-entry.warning { color: #FFD54F; } /* Yellow */
+.log-entry.error { color: #EF9A9A; } /* Red */
+.log-entry.critical { background-color: #D32F2F; color: white; padding: 0.2rem 0.5rem; display: block; } /* Dark Red background */
+.log-entry.debug { color: #B0BEC5; } /* Light grey */
+.log-entry.raw { color: #9FA8DA; } /* Indigo for raw/webhook */
+
+.log-controls input[type="text"],
+.log-controls select {
+    flex-grow: 1; /* Allow filter and select to grow */
+    min-width: 150px; /* Minimum width for responsiveness */
+}
+
+.log-simulation-controls {
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.log-simulation-controls h3 {
+    width: 100%; /* Ensure heading takes full width */
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.log-simulation-controls button {
+    background-color: #607d8b; /* Greyish color for simulation buttons */
+}
+
+.log-simulation-controls button:hover:not(:disabled) {
+    background-color: #455a64;
+}
+
+/* --- Configuration Viewer --- */
+.config-list {
+    background-color: #f7f9fc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.config-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.config-list li {
+    background-color: var(--background-card);
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+}
+
+.config-list li:last-child {
+    border-bottom: none;
+}
+
+.config-list li span:first-child {
+    font-weight: 600;
+    color: var(--primary-color);
+    flex-shrink: 0; /* Prevent key from shrinking */
+    margin-right: 1rem; /* Space between key and value */
+}
+
+.config-list li span:last-child {
+    color: var(--text-color);
+    word-break: break-all; /* Allow long values to break */
+    text-align: right;
+}
+
+
+/* General Accessibility & Usability */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--input-border-focus);
+    outline-offset: 2px;
+}
+
+/* Fade-in animation for tab content */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .server-cards-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .tab-button {
+        padding: 0.7rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+    .container {
+        padding: 1.5rem;
+    }
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    h2 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    .tab-navigation {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.5rem;
+    }
+    .tab-button {
+        margin: 0.25rem 0;
+        justify-content: flex-start; /* Align text to left */
+    }
+    .control-buttons, .log-controls, .log-simulation-controls {
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: stretch; /* Stretch buttons to full width */
+    }
+    button {
+        width: 100%; /* Full width for buttons */
+    }
+    .form-group label {
+        width: 100%;
+    }
+    .log-output {
+        height: 300px; /* Smaller height on mobile */
+    }
+    .chart-container {
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+    .dashboard-item p {
+        font-size: 1.5rem;
+    }
+    .guild-icon, .guild-icon-placeholder {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    .guild-details h3 {
+        font-size: 1rem;
+    }
+}
