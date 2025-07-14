@@ -286,6 +286,31 @@ def get_guilds_proxy():
         ui_logger.critical(f"An unexpected error occurred in get_guilds_proxy: {e}", exc_info=True)
         return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
 
+@app.route('/api/simulate_log', methods=['POST'])
+def simulate_log_proxy():
+    try:
+        json_data = request.get_json()
+        if not json_data or 'level' not in json_data or 'message' not in json_data:
+            ui_logger.warning("Invalid request for simulate_log_proxy: Missing 'level' or 'message'.")
+            return jsonify({"status": "error", "error": "Invalid request body. 'level' and 'message' are required."}), 400
+
+        # Pass the data directly to the bot API
+        response = requests.post(f"{EXISTING_BOT_API_URL}/simulate_log", json=json_data, timeout=15)
+        response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.ConnectionError:
+        ui_logger.error(f"ConnectionError: Bot API not reachable at {EXISTING_BOT_API_URL} for simulate_log.")
+        return jsonify({"status": "error", "error": "Bot API not reachable."}), 503
+    except requests.exceptions.Timeout:
+        ui_logger.error(f"Timeout: Bot API request timed out for {EXISTING_BOT_API_URL}/simulate_log.")
+        return jsonify({"status": "error", "error": "Bot API request timed out."}), 504
+    except requests.exceptions.RequestException as e:
+        ui_logger.error(f"Error proxying simulate_log request to bot API: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"Failed to simulate log via bot API: {e}"}), 500
+    except Exception as e:
+        ui_logger.critical(f"An unexpected error occurred in simulate_log_proxy: {e}", exc_info=True)
+        return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
+
 def run_flask_app():
     """
     Starts the Flask web server for the UI.
