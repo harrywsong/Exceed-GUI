@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // New function to add a single log entry to the display and array
-    function addLogEntry(entry) {
+function addLogEntry(entry) {
     // Apply current filters to the new entry before adding to display
     const filterText = (logFilterInput ? logFilterInput.value.toLowerCase() : '');
     const filterLevel = (logLevelFilterSelect ? logLevelFilterSelect.value.toLowerCase() : 'all');
@@ -465,38 +465,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const matchesLevel = filterLevel === 'all' || (entry.level && entry.level.toLowerCase() === filterLevel);
 
-    // Always add the entry to the allLogEntries array, regardless of current filters
-    // Filters are applied by renderLogs()
-    // Avoids potential duplicates if the same log comes from both simulation and fetch
-    // if (!allLogEntries.some(existingEntry =>
-    //     existingEntry.timestamp === entry.timestamp &&
-    //     existingEntry.level === entry.level &&
-    //     existingEntry.message === entry.message
-    // )) {
-        allLogEntries.push(entry);
-    // }
+    // This block ensures the log is added to the in-memory array
+    // You have logic here already, so ensure it pushes the 'entry' to 'allLogEntries'
+    // The previous filter check was redundant here as renderLogs() handles filtering.
+    // For simplicity, we'll ensure all entries are added to the array for processing by renderLogs.
+    // Remove the 'if (matchesText && matchesLevel)' around the push, as renderLogs filters.
+    allLogEntries.push(entry);
 
-    // Instead of directly appending, call renderLogs() to refresh the entire display
-    // This ensures consistency with filtering and the "clean slate" behavior
-    renderLogs();
+    // --- START OF CHANGE ---
+    // REMOVE or COMMENT OUT the following lines:
+    /*
+    if (matchesText && matchesLevel) { // This outer if is also no longer needed here if renderLogs filters
+        // Create and append the new paragraph element for the log
+        const p = document.createElement('p');
+        const logSourceName = entry.logger_name || 'UNKNOWN';
+        const logLevel = entry.level || 'UNKNOWN';
+        const logTimestamp = entry.timestamp || 'N/A';
+        const logMessage = entry.message || '';
 
-    // The original direct DOM append logic is removed from here:
-    // if (matchesText && matchesLevel) {
-    //     const p = document.createElement('p');
-    //     const logSourceName = entry.logger_name || 'UNKNOWN';
-    //     const logLevel = entry.level || 'UNKNOWN';
-    //     const logTimestamp = entry.timestamp || 'N/A';
-    //     const logMessage = entry.message || '';
+        p.className = `log-entry ${logLevel.toLowerCase()}`;
+        p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
+        logOutput.appendChild(p);
 
-    //     p.className = `log-entry ${logLevel.toLowerCase()}`;
-    //     p.textContent = `[${logLevel}] ${logTimestamp} [${logSourceName}] ${logMessage}`;
-    //     logOutput.appendChild(p);
-
-    //     // Scroll to the bottom
-    //     logOutput.scrollTop = logOutput.scrollHeight;
-    // }
+        // Scroll to the bottom
+        logOutput.scrollTop = logOutput.scrollHeight;
+    }
+    */
+    // Instead, always call renderLogs() after adding to the array
+    renderLogs(); //
+    // --- END OF CHANGE ---
 }
-
 
     function renderLogs() {
         if (!logOutput) {
