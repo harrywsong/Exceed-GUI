@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="디스코드 봇을 관리하고 모니터링하기 위한 관리 UI입니다.">
     <title>디스코드 봇 관리 UI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0V4LLanw2qksN+K/G1RYPqQ8jJ4h4o9tB9Q4Lq4q4q4q4q4q4q4q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -40,6 +40,7 @@
         <main class="tab-content">
             <div id="dashboard-tab" class="tab-pane active" role="tabpanel" aria-labelledby="dashboard-tab-button">
                 <section class="card dashboard-grid">
+                    <h2>대시보드</h2>
                     <div class="dashboard-item status-item">
                         <h3>봇 상태</h3>
                         <p><span id="status" class="status-indicator">로딩 중...</span></p>
@@ -66,12 +67,13 @@
                     </div>
                 </section>
             </div>
+
             <div id="server-info-tab" class="tab-pane" role="tabpanel" aria-labelledby="server-info-tab-button">
                 <section class="card server-info">
                     <h2>서버 정보</h2>
-                    <p><i>봇이 참여하고 있는 서버 목록입니다.</i></p>
+                    <p class="description-text"><i>봇이 참여하고 있는 서버 목록입니다.</i></p>
                     <div id="server-info-list" class="server-cards-container">
-                        <p>서버 정보를 로딩 중입니다...</p>
+                        <p class="loading-message">서버 정보를 로딩 중입니다...</p>
                     </div>
                 </section>
             </div>
@@ -79,20 +81,20 @@
             <div id="bot-control-tab" class="tab-pane" role="tabpanel" aria-labelledby="bot-control-tab-button">
                 <section class="card bot-control-panel">
                     <h2>봇 제어 패널</h2>
-                    <p><i>봇의 주요 기능을 제어합니다.</i></p>
+                    <p class="description-text"><i>봇의 주요 기능을 제어합니다.</i></p>
                     <div class="control-buttons">
                         <button id="restart-bot-btn" type="button"><i class="fas fa-sync-alt" aria-hidden="true"></i> 봇 재시작</button>
                         <button id="reload-cogs-btn" type="button"><i class="fas fa-redo-alt" aria-hidden="true"></i> Cog 재로드</button>
                         <button id="update-git-btn" type="button"><i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Git에서 업데이트</button>
                     </div>
-                    <div id="control-status-message" class="message"></div>
+                    <div id="control-status-message" class="message" role="status" aria-live="polite"></div>
                 </section>
             </div>
 
             <div id="announcement-tab" class="tab-pane" role="tabpanel" aria-labelledby="announcement-tab-button">
                 <section class="card announcement-sender">
                     <h2>공지 전송</h2>
-                    <p><i>지정된 채널로 공지 메시지를 보냅니다.</i></p>
+                    <p class="description-text"><i>지정된 채널로 공지 메시지를 보냅니다.</i></p>
                     <div class="form-group">
                         <label for="announcement-message">메시지:</label>
                         <textarea id="announcement-message" rows="5" placeholder="전송할 공지 메시지를 입력하세요..."></textarea>
@@ -102,20 +104,20 @@
                         <input type="text" id="announcement-channel" placeholder="메시지를 보낼 Discord 채널 ID (예: 123456789012345678)">
                     </div>
                     <button id="send-announcement-btn" type="submit"><i class="fas fa-paper-plane" aria-hidden="true"></i> 공지 전송</button>
-                    <div id="announcement-status-message" class="message"></div>
+                    <div id="announcement-status-message" class="message" role="status" aria-live="polite"></div>
                 </section>
             </div>
 
             <div id="command-stats-tab" class="tab-pane" role="tabpanel" aria-labelledby="command-stats-tab-button">
                 <section class="card command-usage-stats">
                     <h2>명령어 사용 통계</h2>
-                    <p><i>봇의 명령어 사용 빈도를 시각화합니다.</i></p>
+                    <p class="description-text"><i>봇의 명령어 사용 빈도를 시각화합니다.</i></p>
                     <div class="chart-container">
                         <canvas id="commandUsageChart"></canvas>
                     </div>
                     <h3>가장 많이 사용된 명령어</h3>
                     <ul id="top-commands-list" class="top-commands">
-                        <li>명령어 통계를 로딩 중입니다...</li>
+                        <li class="loading-message">명령어 통계를 로딩 중입니다...</li>
                     </ul>
                 </section>
             </div>
@@ -123,9 +125,9 @@
             <div id="logs-viewer-tab" class="tab-pane" role="tabpanel" aria-labelledby="logs-viewer-tab-button">
                 <section class="card logs-viewer">
                     <h2>로그 뷰어</h2>
-                    <p><i>봇의 실시간 로그를 확인합니다.</i></p>
+                    <p class="description-text"><i>봇의 실시간 로그를 확인합니다.</i></p>
                     <div class="log-controls">
-                        <input type="text" id="log-filter" placeholder="로그 필터링 (키워드, 레벨, 소스)">
+                        <input type="text" id="log-filter" placeholder="로그 필터링 (키워드, 레벨, 소스)" aria-label="로그 필터 입력">
                         <select id="log-level-filter" aria-label="로그 레벨 필터">
                             <option value="all">모든 레벨</option>
                             <option value="debug">DEBUG</option>
@@ -146,8 +148,8 @@
                         <button class="simulate-log-btn" data-log-level="ERROR" type="button">ERROR 로그 생성</button>
                         <button class="simulate-log-btn" data-log-level="CRITICAL" type="button">CRITICAL 로그 생성</button>
                     </div>
-                    <div class="log-output" id="log-output">
-                        <p>로그 로딩 중...</p>
+                    <div class="log-output" id="log-output" aria-live="polite" aria-atomic="false">
+                        <p class="loading-message">로그 로딩 중...</p>
                     </div>
                 </section>
             </div>
@@ -155,14 +157,13 @@
             <div id="config-viewer-tab" class="tab-pane" role="tabpanel" aria-labelledby="config-viewer-tab-button">
                 <section class="card config-viewer">
                     <h2>설정 뷰어</h2>
-                    <p><i>봇의 설정 파일에서 민감하지 않은 값을 표시합니다.</i></p>
+                    <p class="description-text"><i>봇의 설정 파일에서 민감하지 않은 값을 표시합니다.</i></p>
                     <div id="config-output" class="config-list">
-                        <p>설정 로딩 중...</p>
+                        <p class="loading-message">설정 로딩 중...</p>
                     </div>
                 </section>
             </div>
         </main>
-
     </div>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
