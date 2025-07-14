@@ -74,7 +74,7 @@ def get_bot_info():
             "guild_count": 0,
             "user_count": 0,
             "commands_used_today": 0,
-            "error": "봇 API에 연결할 수 없습니다. 봇이 실행 중이고 API가 노출되어 있는지 확인하세요."
+            "error": "Bot API not reachable. Is your bot running and its API exposed?"
         }), 200 # Return 200 OK, but indicate offline status in JSON
 
     except requests.exceptions.Timeout:
@@ -86,7 +86,7 @@ def get_bot_info():
             "guild_count": 0,
             "user_count": 0,
             "commands_used_today": 0,
-            "error": "봇 API 요청 시간 초과."
+            "error": "Bot API request timed out."
         }), 200
 
     except requests.exceptions.RequestException as e:
@@ -98,7 +98,7 @@ def get_bot_info():
             "guild_count": 0,
             "user_count": 0,
             "commands_used_today": 0,
-            "error": f"봇 API 오류: {e}. 봇 로그를 확인하세요."
+            "error": f"Error from bot API: {e}. Check bot logs."
         }), 200
     except Exception as e:
         ui_logger.critical(f"An unexpected error occurred in get_bot_info: {e}", exc_info=True)
@@ -109,7 +109,7 @@ def get_bot_info():
             "guild_count": 0,
             "user_count": 0,
             "commands_used_today": 0,
-            "error": f"예상치 못한 오류가 발생했습니다: {e}"
+            "error": f"An unexpected error occurred: {e}"
         }), 500
 
 
@@ -125,7 +125,7 @@ def send_announcement():
     channel_id = request.json.get('channel_id')
 
     if not message or not channel_id:
-        return jsonify({"success": False, "error": "메시지와 채널 ID는 필수입니다."}), 400
+        return jsonify({"success": False, "error": "Message and channel ID are required."}), 400
 
     try:
         response = requests.post(
@@ -137,16 +137,16 @@ def send_announcement():
         bot_response = response.json()
 
         if bot_response.get("status") == "success":
-            return jsonify({"success": True, "message": bot_response.get("message", "공지 요청이 전송되었습니다.")}), 200
+            return jsonify({"success": True, "message": bot_response.get("message", "Announcement request sent.")}), 200
         else:
-            return jsonify({"success": False, "error": bot_response.get("error", "봇 명령이 실패했습니다.")}), 500
+            return jsonify({"success": False, "error": bot_response.get("error", "Bot command failed.")}), 500
 
     except requests.exceptions.RequestException as e:
         ui_logger.error(f"Error sending announcement to external bot API: {e}", exc_info=True)
-        return jsonify({"success": False, "error": f"봇 API와 통신하는 데 실패했습니다: {e}"}), 500
+        return jsonify({"success": False, "error": f"Failed to communicate with bot API: {e}"}), 500
     except Exception as e:
         ui_logger.critical(f"An unexpected error occurred in send_announcement: {e}", exc_info=True)
-        return jsonify({"success": False, "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
+        return jsonify({"success": False, "error": f"An unexpected error occurred: {e}"}), 500
 
 
 @app.route('/api/control_bot', methods=['POST'])
@@ -160,7 +160,7 @@ def control_bot():
     action = request.json.get('action')
 
     if action not in ['restart', 'reload_cogs', 'update_git']:
-        return jsonify({"success": False, "error": "유효하지 않은 작업입니다."}), 400
+        return jsonify({"success": False, "error": "Invalid action."}), 400
 
     try:
         response = requests.post(
@@ -172,29 +172,16 @@ def control_bot():
         bot_response = response.json()
 
         if bot_response.get("status") == "success":
-            return jsonify({"success": True, "message": bot_response.get("message", f"봇 {action}이(가) 성공적으로 시작되었습니다.")}), 200
+            return jsonify({"success": True, "message": bot_response.get("message", f"Bot {action} initiated successfully.")}), 200
         else:
-            return jsonify({"success": False, "error": bot_response.get("error", f"봇 {action}이(가) 실패했습니다.")}), 500
+            return jsonify({"success": False, "error": bot_response.get("error", f"Bot {action} failed.")}), 500
 
     except requests.exceptions.RequestException as e:
         ui_logger.error(f"Error sending control action to external bot API: {e}", exc_info=True)
-        return jsonify({"success": False, "error": f"봇 API와 통신하는 데 실패했습니다: {e}"}), 500
+        return jsonify({"success": False, "error": f"Failed to communicate with bot API: {e}"}), 500
     except Exception as e:
         ui_logger.critical(f"An unexpected error occurred in control_bot: {e}", exc_info=True)
-        return jsonify({"success": False, "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
-
-@app.route('/api/config', methods=['GET'])
-def get_config_proxy():
-    """
-    Proxies the request to the bot's /api/config endpoint.
-    """
-    try:
-        response = requests.get(f"{EXISTING_BOT_API_URL}/api/config", timeout=10)
-        response.raise_for_status()
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        ui_logger.error(f"Error proxying config request to bot API: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"Failed to fetch config from bot API: {e}"}), 500
+        return jsonify({"success": False, "error": f"An unexpected error occurred: {e}"}), 500
 
 @app.route('/api/logs', methods=['GET'])
 def get_logs_proxy():
@@ -207,10 +194,10 @@ def get_logs_proxy():
         return jsonify(response.json()), response.status_code
     except requests.exceptions.RequestException as e:
         ui_logger.error(f"Error proxying logs request to bot API: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"봇 API에서 로그를 가져오는 데 실패했습니다: {e}"}), 500
+        return jsonify({"status": "error", "error": f"Failed to fetch logs from bot API: {e}"}), 500
     except Exception as e:
         ui_logger.critical(f"An unexpected error occurred in get_logs_proxy: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
+        return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
 
 
 @app.route('/api/command_stats', methods=['GET'])
@@ -224,164 +211,11 @@ def get_command_stats_proxy():
         return jsonify(response.json()), response.status_code
     except requests.exceptions.RequestException as e:
         ui_logger.error(f"Error proxying command stats request to bot API: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"봇 API에서 명령어 통계를 가져오는 데 실패했습니다: {e}"}), 500
+        return jsonify({"status": "error", "error": f"Failed to fetch command stats from bot API: {e}"}), 500
     except Exception as e:
         ui_logger.critical(f"An unexpected error occurred in get_command_stats_proxy: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
+        return jsonify({"status": "error", "error": f"An unexpected error occurred: {e}"}), 500
 
-@app.route('/api/config_proxy', methods=['GET'])
-def get_config_proxy():
-    """
-    Proxies the request to the bot's /api/config endpoint to fetch bot configuration.
-    """
-    try:
-        response = requests.get(f"{EXISTING_BOT_API_URL}/api/config", timeout=10)
-        response.raise_for_status()
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        ui_logger.error(f"Error proxying config request to bot API: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"봇 API에서 설정을 가져오는 데 실패했습니다: {e}"}), 500
-    except Exception as e:
-        ui_logger.critical(f"An unexpected error occurred in get_config_proxy: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
-
-@app.route('/api/reaction_roles_proxy', methods=['GET'])
-def get_reaction_roles_proxy():
-    """
-    Proxies the request to the bot's /api/reaction_roles endpoint to fetch reaction roles.
-    """
-    try:
-        response = requests.get(f"{EXISTING_BOT_API_URL}/api/reaction_roles", timeout=10)
-        response.raise_for_status()
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        ui_logger.error(f"Error proxying reaction roles GET request to bot API: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"봇 API에서 리액션 역할을 가져오는 데 실패했습니다: {e}"}), 500
-    except Exception as e:
-        ui_logger.critical(f"An unexpected error occurred in get_reaction_roles_proxy: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
-
-@app.route('/api/reaction_roles_proxy/add', methods=['POST'])
-def add_reaction_role_proxy():
-    """
-    Proxies the request to the bot's /api/reaction_roles/add endpoint to add a reaction role.
-    """
-    try:
-        response = requests.post(
-            f"{EXISTING_BOT_API_URL}/api/reaction_roles/add",
-            json=request.json,
-            timeout=10
-        )
-        response.raise_for_status()
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        ui_logger.error(f"Error proxying reaction roles ADD request to bot API: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"봇 API에 리액션 역할 추가 요청을 보내는 데 실패했습니다: {e}"}), 500
-    except Exception as e:
-        ui_logger.critical(f"An unexpected error occurred in add_reaction_role_proxy: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
-
-@app.route('/api/reaction_roles_proxy/remove', methods=['POST'])
-def remove_reaction_role_proxy():
-    """
-    Proxies the request to the bot's /api/reaction_roles/remove endpoint to remove a reaction role.
-    """
-    try:
-        response = requests.post(
-            f"{EXISTING_BOT_API_URL}/api/reaction_roles/remove",
-            json=request.json,
-            timeout=10
-        )
-        response.raise_for_status()
-        return jsonify(response.json()), response.status_code
-    except requests.exceptions.RequestException as e:
-        ui_logger.error(f"Error proxying reaction roles REMOVE request to bot API: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"봇 API에 리액션 역할 제거 요청을 보내는 데 실패했습니다: {e}"}), 500
-    except Exception as e:
-        ui_logger.critical(f"An unexpected error occurred in remove_reaction_role_proxy: {e}", exc_info=True)
-        return jsonify({"status": "error", "error": f"예상치 못한 오류가 발생했습니다: {e}"}), 500
-
-@app.route('/api/reaction_roles/add', methods=['POST'])
-def add_reaction_role_proxy():
-    """
-    Proxies the request to the bot's /api/reaction_roles/add endpoint
-    to create a new reaction role.
-    Expected request from UI: JSON {"guild_id": int, "message_id": int,
-                                   "channel_id": int, "emoji": string, "role_id": int}
-    """
-    data = request.get_json()
-    ui_logger.info(f"Received reaction role ADD request from UI: {data}") # For debugging UI requests
-
-    if not data:
-        return jsonify({"success": False, "error": "No JSON data provided from UI."}), 400
-
-    # Validate required fields from the UI request
-    required_fields = ['guild_id', 'message_id', 'channel_id', 'emoji', 'role_id']
-    if not all(field in data for field in required_fields):
-        missing = [field for field in required_fields if field not in data]
-        ui_logger.error(f"Missing required fields in UI request: {missing}")
-        return jsonify({"success": False, "error": f"Missing required fields: {', '.join(missing)}"}), 400
-
-    try:
-        # Ensure data types are correct before sending to bot API
-        payload = {
-            "guild_id": int(data['guild_id']),
-            "message_id": int(data['message_id']),
-            "channel_id": int(data['channel_id']), # Ensure channel_id is included
-            "emoji": str(data['emoji']),
-            "role_id": int(data['role_id'])
-        }
-        ui_logger.info(f"Sending reaction role ADD payload to bot API: {payload}")
-
-        response = requests.post(
-            f"{EXISTING_BOT_API_URL}/api/reaction_roles/add",
-            json=payload,
-            timeout=10
-        )
-        response.raise_for_status() # This will raise HTTPError for 4xx/5xx responses
-        bot_response = response.json()
-
-        if bot_response.get("success"):
-            ui_logger.info("Reaction role added successfully by bot API.")
-            return jsonify({"success": True, "message": bot_response.get("message", "Reaction role added successfully.")}), 201
-        else:
-            error_message = bot_response.get("error", "Bot API failed to add reaction role.")
-            ui_logger.error(f"Bot API reported failure adding reaction role: {error_message}")
-            return jsonify({"success": False, "error": error_message}), response.status_code # Use bot's status code
-
-    except ValueError as e:
-        ui_logger.error(f"Invalid data type received from UI for reaction role: {e}", exc_info=True)
-        return jsonify({"success": False, "error": f"Invalid data type provided. Ensure IDs are numbers. Details: {e}"}), 400
-    except requests.exceptions.RequestException as e:
-        ui_logger.error(f"Error proxying reaction roles ADD request to bot API: {e}", exc_info=True)
-        # Catch specific HTTPError for more detailed client-side messages
-        if isinstance(e, requests.exceptions.HTTPError):
-            return jsonify({"success": False, "error": f"Bot API Error {e.response.status_code}: {e.response.text}"}), e.response.status_code
-        return jsonify({"success": False, "error": f"Failed to communicate with bot API: {e}"}), 500
-    except Exception as e:
-        ui_logger.critical(f"An unexpected error occurred in add_reaction_role_proxy: {e}", exc_info=True)
-        return jsonify({"success": False, "error": f"An unexpected error occurred: {e}"}), 500
-
-@app.route('/api/reaction_roles', methods=['GET'])
-def get_reaction_roles_proxy():
-    """
-    Proxies the request to the bot's /api/reaction_roles endpoint
-    to fetch existing reaction role configurations.
-    """
-    try:
-        response = requests.get(f"{EXISTING_BOT_API_URL}/api/reaction_roles", timeout=10)
-        response.raise_for_status()
-        bot_response = response.json()
-        ui_logger.info("Successfully fetched reaction roles from bot API.")
-        return jsonify(bot_response), response.status_code
-    except requests.exceptions.RequestException as e:
-        ui_logger.error(f"Error proxying reaction roles GET request to bot API: {e}", exc_info=True)
-        if isinstance(e, requests.exceptions.HTTPError):
-            return jsonify({"error": f"Bot API Error {e.response.status_code}: {e.response.text}"}), e.response.status_code
-        return jsonify({"error": f"Failed to fetch reaction roles from bot API: {e}"}), 500
-    except Exception as e:
-        ui_logger.critical(f"An unexpected error occurred in get_reaction_roles_proxy: {e}", exc_info=True)
-        return jsonify({"error": f"An unexpected error occurred: {e}"}), 500
 
 def run_flask_app():
     """
@@ -394,7 +228,6 @@ if __name__ == '__main__':
     # We no longer attempt to start it from app.py.
     # You must run bot.py and app.py in separate processes/terminals.
 
-    ui_logger.info(f"Flask UI 앱이 http://127.0.0.1:5000/ 에서 시작됩니다.")
-    ui_logger.info(f"봇 API가 {EXISTING_BOT_API_URL}에서 별도로 실행 중인지 확인하세요.")
+    ui_logger.info(f"Starting Flask UI app on http://127.0.0.1:5000/")
+    ui_logger.info(f"Ensure your bot's API is running separately on {EXISTING_BOT_API_URL}")
     run_flask_app()
-
