@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allLogEntries = [];
     // Variable to hold the log fetching interval ID
     let logFetchIntervalId;
+    let lastClearedTimestamp = null;
 
     // Interval IDs for other dashboard components (optional, but good practice for cleanup)
     let botStatusIntervalId;
@@ -413,6 +414,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function fetchNewLogsOnly() {
+        let url = `${API_BASE_URL}/logs`;
+        // Append since_timestamp parameter if lastClearedTimestamp is set
+        if (lastClearedTimestamp) {
+            url += `?since_timestamp=${encodeURIComponent(lastClearedTimestamp)}`;
+        }
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                // Filter out any logs that might already be in allLogEntries (due to simulation, etc.)
+                // This prevents duplicates if simulated logs are also written to the file
+                const newLogs = data.logs.filter(newEntry =>
+                    !allLogEntries.some(existingEntry =>
+                        existingEntry.timestamp === newEntry.timestamp &&
+                        existingEntry.level === newEntry.level &&
+                        existingEntry.message === newEntry.message
+                    )
+                );
+
+                if (newLogs.length > 0) {
+                    allLogEntries.push(...newLogs); // Add new logs to the array
+                    renderLogs(); // Re-render the entire list to include new logs
+                }
+            } else if (response.status === 400 && data.message.includes("Invalid since_timestamp format")) {
+                console.warn("Backend reported invalid timestamp format. Resetting lastClearedTimestamp.");
+                lastClearedTimestamp = null; // Reset to fetch all next time if format was bad
+                // Optionally, you might want to notify the user of the timestamp error.
+            } else {
+                console.error('Failed to fetch new logs:', data.error);
+            }
+        } catch (error) {
+            console.error('Network error fetching new logs:', error);
+        }
+    }
+
     // New function to add a single log entry to the display and array
     function addLogEntry(entry) {
         // Apply current filters to the new entry before adding to display
@@ -501,11 +540,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (logOutput) logOutput.innerHTML = '';
                 allLogEntries = []; // Clear the in-memory array
 
-                // Stop the automatic log fetching interval
+                // NEW: Set lastClearedTimestamp to the current time for subsequent fetches
+                const now = new Date();
+                lastClearedTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+                // Stop any existing interval and start a new one to fetch only new logs
                 if (logFetchIntervalId) {
                     clearInterval(logFetchIntervalId);
-                    logFetchIntervalId = null;
                 }
+                // Start fetching only new logs immediately after clear
+                logFetchIntervalId = setInterval(fetchNewLogsOnly, 3000);
+
                 if (controlStatusMessage) showMessage(controlStatusMessage, '로그 화면이 지워졌습니다.', 'info');
                 renderLogs(); // Render empty logs to confirm visual clear
             });
