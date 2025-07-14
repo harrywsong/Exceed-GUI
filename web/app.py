@@ -221,13 +221,13 @@ def run_flask_app():
     """
     Starts the Flask web server for the UI.
     """
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5001, debug=True)
 
 if __name__ == '__main__':
     # The bot's API server is assumed to be started by bot.py itself.
     # We no longer attempt to start it from app.py.
     # You must run bot.py and app.py in separate processes/terminals.
 
-    ui_logger.info(f"Starting Flask UI app on http://127.0.0.1:5000/")
+    ui_logger.info(f"Starting Flask UI app on http://127.0.0.1:5001/")
     ui_logger.info(f"Ensure your bot's API is running separately on {EXISTING_BOT_API_URL}")
     run_flask_app()
