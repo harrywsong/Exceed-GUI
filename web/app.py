@@ -240,13 +240,12 @@ def add_reaction_role_proxy():
     Proxies the POST request to the bot's /api/reaction_roles/add endpoint.
     """
     try:
-        # Forward the JSON body as-is to the bot API
         json_data = request.get_json()
         if not json_data:
             return jsonify({"status": "error", "error": "No JSON data provided"}), 400
 
         response = requests.post(f"{EXISTING_BOT_API_URL}/api/reaction_roles/add", json=json_data, timeout=15)
-        response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+        response.raise_for_status()
         return jsonify(response.json()), response.status_code
     except requests.exceptions.RequestException as e:
         ui_logger.error(f"Error proxying POST reaction role add request to bot API: {e}", exc_info=True)
